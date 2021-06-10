@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let timerId;
 
     const ScoreDisplay = document.querySelector('#score');
-    const StartBtn = document.querySelector('#startButton');
     const grid = document.querySelector('.gameGrid');
 
     let squares = Array.from(document.querySelectorAll('.gameGrid div'));
@@ -63,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPosition = 4;//183;
             blockDraw();
             displayShape();
+            gameOver();
         }
     }
 
@@ -140,17 +140,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     startBtn.addEventListener('click', () =>{
+        alert("uh oh");
         if(timerId){
             clearInterval(timerId);
         }else{
-            blockDraw()
-            timerId = setInterval(moveDown, 1000);
+            blockDraw();
+            timerId = setInterval(moveDown, 200);
             nextRandom = Math.floor(Math.random()*Blocks.length);
             displayShape();
         }
     })
 
-
-
-
+    function gameOver() {
+        if(current.some(index => squares[currentPosition + index].classList.contains('taken'))){
+            //scoreDisplay.innerHTML = 'end';
+            clearInterval(timerId);
+            alert("uh oh");
+        }
+    }
 })
