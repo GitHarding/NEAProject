@@ -47,11 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Timer functionality
     function moveDown(){
-        console.log(currentPosition);
+        blockCheck(); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
         blockErase(); //Erases the block from the "canvas"
         currentPosition += width; //Adds 10 to the value to "drop" the block downward
         blockDraw(); //Redraws the block afterwards
-        blockCheck(); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
     }
 
     //Block collision checking functionality
@@ -59,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(current.some(index => squares[currentPosition + index + width].classList.contains('filled'))){
             current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
             random = nextRandom; //Starts to instantiate a new Block
+            currentRotation = 0;
             nextRandom = Math.floor(Math.random() * Blocks.length);
             current = Blocks[0][0]; //Doesnt yet use randomisation as there is only 1 block
             currentPosition = 4;//183;
@@ -70,11 +70,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Input dedicated functions
     document.addEventListener('keydown', control); //Adds the event listener for keyboards
+    let lastPressed = 0;//Used to stop mass key presses when a key is held down
+    let now
+    let lastKeyCode = 0;
     function control(key) {
+
+        now = Date.now();
+        if(now - lastPressed < 100 && lastKeyCode == key.keyCode) return;//Stops any key pressing if it is mass used
+        lastPressed = now
+        lastKeyCode = key.keyCode
+
         if(!paused){ //User can use the control keys on keyboards if the game is unpaused
             if(key.keyCode === 37){
                 moveLeft();
             } else if(key.keyCode === 38){
+                blockCheck();
                 blockRotate();
             } else if(key.keyCode === 39){
                 moveRight();
@@ -111,18 +121,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function blockRotate() {
-        blockErase();
-        if(currentPosition % 10 == 9){ //Checks if the centre block is on the edges as it can wrap to the other side
-            currentPosition +=1; //Will move the centre right before rotating
-        }else if(currentPosition % 10 == 8){
-            currentPosition -= 1; //Will move the centre left before rotating
+        let lodgedLeft = false;
+        let lodgedRight = false;
+        console.log("Interpreters dont like telling me what actually works so this will");
+        //squares[currentPosition + 2].classList.add('block')
+
+        if(current.some(element => squares[currentPosition + 2].classList.contains('filled')) || current.some(element => squares[currentPosition + width + 2].classList.contains('filled')) || current.some(element => squares[currentPosition + 2 - width].classList.contains('filled'))){ //Checks for block lodging
+            console.log("LODGED");
+            lodgedRight = true;
         }
-        currentRotation ++; //Iterates to the next rotation of block
-        if(currentRotation === current.length+1){
-            currentRotation = 0;
+        if(current.some(element => squares[currentPosition].classList.contains('filled')) || current.some(element => squares[currentPosition + width].classList.contains('filled')) || current.some(element => squares[currentPosition - width].classList.contains('filled'))){ //Checks for block lodging
+            console.log("LODGED");
+            lodgedLeft = true;
         }
-        current = Blocks[random][currentRotation];
-        blockDraw();
+
+        if(lodgedLeft && lodgedRight) {//Will not rotate if the block is stuck within a small space
+        }else{
+            blockErase();
+            if(currentPosition % 10 == 9 || lodgedLeft){ //Checks if the centre block is on the edges as it can wrap to the other side
+                currentPosition +=1; //Will move the centre right before rotating
+            }else if(currentPosition % 10 == 8  || lodgedRight){
+                currentPosition -= 1; //Will move the centre left before rotating
+            }
+            currentRotation ++; //Iterates to the next rotation of block
+            if(currentRotation === current.length+1){
+                currentRotation = 0;
+            }
+            current = Blocks[random][currentRotation];
+            blockDraw();
+        }
     }
 
 
@@ -160,12 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
-    function gameOver() { //Unsure if game over currently works so it has been disabled for later development
-        if(current.some(index => squares[currentPosition + index].classList.contains('taken'))){
-            //scoreDisplay.innerHTML = 'end';
-            //clearInterval(timerId);
-            //paused = true;
-            alert("uh oh");
+    function gameOver() { //Game Over Functionality
+        if(current.some(index => squares[currentPosition + index].classList.contains('filled'))){
+            ScoreDisplay.innerHTML = 'end';
+            clearInterval(timerId);
+            paused = true;
         }
+
     }
 })
