@@ -1,5 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+
+//Initialises The DIV grid in the CSS
+let applyHTML = document.createDocumentFragment();
+let applyHTMLP = document.createDocumentFragment();
+
+//Game Blocks
+for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
+    let divGen = document.createElement('div');
+    applyHTML.appendChild(divGen);
+}
+
+//Game Border
+for(let i = 0; i < 10; i++){//Creates 10 squares to fill the bottom border of the game grid
+    divGen = document.createElement('div');
+    divGen.className = 'filled';
+    applyHTML.appendChild(divGen);
+}
+
+//Game Preview Box
+    for(let i = 0; i < 9; i++){//Creates 9 squares to fill the preview square
+        divGen = document.createElement('div');
+        applyHTMLP.appendChild(divGen);
+    }
+
+//Applies all of the HTML elements in the 2 statements below
+document.getElementsByClassName("gameGrid")[0].appendChild(applyHTML);
+document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
+
+
+
+
+
+
+
     //Finds all the html components
     const startBtn = document.querySelector('#startButton');
     const ScoreDisplay = document.querySelector('#score');
@@ -71,8 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
     //Input dedicated functions
     document.addEventListener('keydown', control); //Adds the event listener for keyboards
     let lastPressed = 0;//Used to stop mass key presses when a key is held down
-    let now
-    let lastKeyCode = 0;
+    let now; //Used to determine the last time a key was touched
+    let lastKeyCode = 0; //Used to determine if the last key pressed was a repeat of the last key
     function control(key) {
 
         now = Date.now();
@@ -80,16 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
         lastPressed = now
         lastKeyCode = key.keyCode
 
-        if(!paused){ //User can use the control keys on keyboards if the game is unpaused
-            if(key.keyCode === 37){
+        if(!paused){ //User can use the control keys on keyboards if the game is un-paused
+            if(key.keyCode === 37){ //If the left arrow is pressed
                 moveLeft();
-            } else if(key.keyCode === 38){
-                blockCheck();
-                blockRotate();
-            } else if(key.keyCode === 39){
+            } else if(key.keyCode === 38){ //If the up arrow is pressed
+                blockCheck(); //Checks the blocks before it rotates
+                blockRotate(); //Then rotates the block
+            } else if(key.keyCode === 39){ //If the right arrow is pressed
                 moveRight();
-            } else if(key.keyCode === 40){
-                //fast drop - yet to be implemented
+            } else if(key.keyCode === 40){ //If the down arrow is pressed
+                moveDown() //Fast drops the block
             }
         }
     }
@@ -123,19 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function blockRotate() {
         let lodgedLeft = false;
         let lodgedRight = false;
-        console.log("Interpreters dont like telling me what actually works so this will");
         //squares[currentPosition + 2].classList.add('block')
 
         if(current.some(element => squares[currentPosition + 2].classList.contains('filled')) || current.some(element => squares[currentPosition + width + 2].classList.contains('filled')) || current.some(element => squares[currentPosition + 2 - width].classList.contains('filled'))){ //Checks for block lodging
-            console.log("LODGED");
             lodgedRight = true;
         }
         if(current.some(element => squares[currentPosition].classList.contains('filled')) || current.some(element => squares[currentPosition + width].classList.contains('filled')) || current.some(element => squares[currentPosition - width].classList.contains('filled'))){ //Checks for block lodging
-            console.log("LODGED");
             lodgedLeft = true;
         }
 
-        if(lodgedLeft && lodgedRight) {//Will not rotate if the block is stuck within a small space
+        if(lodgedLeft && lodgedRight) {//Will not rotate if the block is stuck within a small 2 wide space
         }else{
             blockErase();
             if(currentPosition % 10 == 9 || lodgedLeft){ //Checks if the centre block is on the edges as it can wrap to the other side
@@ -155,19 +186,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Show preview squares
     const displaySquares = document.querySelectorAll('.preview div');
-    const displayWidth = 3;
+    const displayWidth = 3; //Gives the width of the Divs
     let displayIndex = 0;
 
     const nextBlock = [
         //Blocks[0]
-        [1+displayWidth,1+displayWidth*2,2]
+        [1+displayWidth,1+displayWidth*2,2] //There is only currently 1 block in the array but more are intended
     ];
 
     function displayShape(){
         displaySquares.forEach(square => {
-            square.classList.remove('block')
+            square.classList.remove('block') //Clears the preview grid
         })
-        nextBlock[nextRandom].forEach(index => {
+        nextBlock[nextRandom].forEach(index => { //Adds the next shape to the preview grid
             displaySquares[displayIndex + index].classList.add('block');
         })
     }
@@ -189,9 +220,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function gameOver() { //Game Over Functionality
         if(current.some(index => squares[currentPosition + index].classList.contains('filled'))){
-            ScoreDisplay.innerHTML = 'end';
-            clearInterval(timerId);
-            paused = true;
+            ScoreDisplay.innerHTML = 'end'; //Used to temporarily display to the player that the game is over
+            clearInterval(timerId); //Stops the incrementing timer that plays the game
+            paused = true; //Pauses the game
         }
 
     }
