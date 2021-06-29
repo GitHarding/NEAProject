@@ -28,12 +28,6 @@ for(let i = 0; i < 10; i++){//Creates 10 squares to fill the bottom border of th
 document.getElementsByClassName("gameGrid")[0].appendChild(applyHTML);
 document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
-
-
-
-
-
-
     //Finds all the html components
     const startBtn = document.querySelector('#startButton');
     const ScoreDisplay = document.querySelector('#score');
@@ -145,7 +139,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     function moveRight(){
         blockErase();
         const rightEdge = current.some(index => (currentPosition + index) % width === width-1);
-        if(!rightEdge){
+        if(!rightEdge){ //If the block is not on the right edge it can move right
             currentPosition +=1;
         }
         if(current.some(index => squares[currentPosition + index].classList.contains('filled'))){
@@ -187,7 +181,6 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     //Show preview squares
     const displaySquares = document.querySelectorAll('.preview div');
     const displayWidth = 3; //Gives the width of the Divs
-    let displayIndex = 0;
 
     const nextBlock = [
         //Blocks[0]
@@ -199,21 +192,19 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
             square.classList.remove('block') //Clears the preview grid
         })
         nextBlock[nextRandom].forEach(index => { //Adds the next shape to the preview grid
-            displaySquares[displayIndex + index].classList.add('block');
+            displaySquares[index].classList.add('block');
         })
     }
 
     startBtn.addEventListener('click', () =>{
         if(paused == false){
-            alert("Paused");
             clearInterval(timerId);
-            paused = true;
+            paused = true; //Pauses the game using this variable as you cannot directly check timerID for values
         }else{
-            alert("Play");
-            blockDraw();
+            blockDraw(); //Redraws the block
             timerId = setInterval(moveDown, 200);
             paused = false;
-            nextRandom = Math.floor(Math.random()*Blocks.length);
+            nextRandom = Math.floor(Math.random()*Blocks.length); //Resets the next random block
             displayShape();
         }
     })
