@@ -5,16 +5,18 @@ document.addEventListener('DOMContentLoaded', () => {
 let applyHTML = document.createDocumentFragment();
 let applyHTMLP = document.createDocumentFragment();
 
-//Game Blocks
-for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
-    let divGen = document.createElement('div');
+
+//Game Border
+for(let i = 0; i < 10; i++){//Creates 10 squares to fill the top border of the game grid
+    divGen = document.createElement('div');
+    divGen.style.backgroundColor = 'green';
+    divGen.className = 'filled';
     applyHTML.appendChild(divGen);
 }
 
-//Game Border
-for(let i = 0; i < 10; i++){//Creates 10 squares to fill the bottom border of the game grid
-    divGen = document.createElement('div');
-    divGen.className = 'filled';
+//Game Blocks
+for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
+    let divGen = document.createElement('div');
     applyHTML.appendChild(divGen);
 }
 
@@ -54,12 +56,13 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     const Blocks = [testBlock]; //Blocks are stored in 1 larger array
     let random = 0; //Random selection of blocks
 
-    let currentPosition = 0; //Position of the centre of the block on the board
+    let currentPosition = 170; //Position of the centre of the block on the board
     let currentRotation = 0; //the current rotation of the block
     let current = Blocks[0][0]; //Stores the current block and the current rotation
     let nextRandom = 0; //Stores the next random block ahead of time
 
-
+    let leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+    let rightEdge = current.some(index => (currentPosition + index) % width === width-1);
 
     function blockDraw() {
         current.forEach(index => { //For each block it will fill the relevant square based on position
@@ -74,22 +77,24 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     }
 
     //Timer functionality
-    function moveDown(){
+    function moveUp(){
+        leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+        rightEdge = current.some(index => (currentPosition + index) % width === width-1);
         blockCheck(); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
         blockErase(); //Erases the block from the "canvas"
-        currentPosition += width; //Adds 10 to the value to "drop" the block downward
+        currentPosition -= width; //Adds 10 to the value to raise the block downward
         blockDraw(); //Redraws the block afterwards
     }
 
     //Block collision checking functionality
     function blockCheck(){
-        if(current.some(index => squares[currentPosition + index + width].classList.contains('filled'))){
+        if(current.some(index => squares[currentPosition + index - width].classList.contains('filled'))){
             current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
             random = nextRandom; //Starts to instantiate a new Block
             currentRotation = 0;
             nextRandom = Math.floor(Math.random() * Blocks.length);
             current = Blocks[0][0]; //Doesnt yet use randomisation as there is only 1 block
-            currentPosition = 4;//183;
+            currentPosition = 170;//183;
             blockDraw(); //Draws the new instantiated block
             displayShape(); //Displays the new shape
             gameOver(); //Checks for a game over
@@ -117,7 +122,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
             } else if(key.keyCode === 39){ //If the right arrow is pressed
                 moveRight();
             } else if(key.keyCode === 40){ //If the down arrow is pressed
-                moveDown() //Fast drops the block
+                moveUp() //Fast drops the block
             }
         }
     }
@@ -125,7 +130,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     function moveLeft(){ //Moves the block left by changing the centre
         blockErase();
-        const leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+        leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
 
         if(!leftEdge){ //If the block is not on the left edge it can move left
             currentPosition -=1;
@@ -138,7 +143,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     function moveRight(){
         blockErase();
-        const rightEdge = current.some(index => (currentPosition + index) % width === width-1);
+        rightEdge = current.some(index => (currentPosition + index) % width === width-1);
         if(!rightEdge){ //If the block is not on the right edge it can move right
             currentPosition +=1;
         }
@@ -149,18 +154,28 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     }
 
     function blockRotate() {
+        leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+        rightEdge = current.some(index => (currentPosition + index) % width === width-1);
         let lodgedLeft = false;
         let lodgedRight = false;
         //squares[currentPosition + 2].classList.add('block')
 
-        if(current.some(element => squares[currentPosition + 2].classList.contains('filled')) || current.some(element => squares[currentPosition + width + 2].classList.contains('filled')) || current.some(element => squares[currentPosition + 2 - width].classList.contains('filled'))){ //Checks for block lodging
+        if(    current.some(element => squares[currentPosition + 2].classList.contains('filled'))
+            || current.some(element => squares[currentPosition + width + 2].classList.contains('filled'))
+            || current.some(element => squares[currentPosition + 2 - width].classList.contains('filled'))){ //Checks for block lodging on the right
             lodgedRight = true;
         }
-        if(current.some(element => squares[currentPosition].classList.contains('filled')) || current.some(element => squares[currentPosition + width].classList.contains('filled')) || current.some(element => squares[currentPosition - width].classList.contains('filled'))){ //Checks for block lodging
+        if(    current.some(element => squares[currentPosition].classList.contains('filled'))
+            || current.some(element => squares[currentPosition + width].classList.contains('filled'))
+            || current.some(element => squares[currentPosition - width].classList.contains('filled'))){ //Checks for block lodging on the left
             lodgedLeft = true;
         }
 
-        if(lodgedLeft && lodgedRight) {//Will not rotate if the block is stuck within a small 2 wide space
+        console.log(lodgedRight + ", " + lodgedLeft + ", " + rightEdge + ", " + leftEdge);
+
+        if(lodgedLeft && lodgedRight
+            || lodgedLeft && rightEdge
+            || lodgedRight && leftEdge) {//Will not rotate if the block is stuck within a small 2 wide space
         }else{
             blockErase();
             if(currentPosition % 10 == 9 || lodgedLeft){ //Checks if the centre block is on the edges as it can wrap to the other side
@@ -202,7 +217,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
             paused = true; //Pauses the game using this variable as you cannot directly check timerID for values
         }else{
             blockDraw(); //Redraws the block
-            timerId = setInterval(moveDown, 200);
+            timerId = setInterval(moveUp, 200);
             paused = false;
             nextRandom = Math.floor(Math.random()*Blocks.length); //Resets the next random block
             displayShape();

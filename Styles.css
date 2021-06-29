@@ -1,6 +1,6 @@
 .gameGrid{
     width:200px;
-    height:400px;
+    height:420px;
     display: flex;
     flex-wrap: wrap;
     background-color: yellow;
@@ -22,6 +22,7 @@ margin-bottom: -80px;*/
 .block {
     background-color: blue;
 }
+
 .preview{
     margin-left: 50px;
     width:60px;
