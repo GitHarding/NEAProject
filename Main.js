@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-
+"use strict";
 
 //Initialises The DIV grid in the CSS
 let applyHTML = document.createDocumentFragment();
