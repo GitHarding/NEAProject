@@ -8,7 +8,7 @@ let applyHTMLP = document.createDocumentFragment();
 
 //Game Border
 for(let i = 0; i < 10; i++){//Creates 10 squares to fill the top border of the game grid
-    divGen = document.createElement('div');
+    let divGen = document.createElement('div');
     divGen.style.backgroundColor = 'green';
     divGen.className = 'filled';
     applyHTML.appendChild(divGen);
@@ -22,7 +22,7 @@ for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
 
 //Game Preview Box
     for(let i = 0; i < 9; i++){//Creates 9 squares to fill the preview square
-        divGen = document.createElement('div');
+        let divGen = document.createElement('div');
         applyHTMLP.appendChild(divGen);
     }
 
@@ -32,6 +32,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     //Finds all the html components
     const startBtn = document.querySelector('#startButton');
+    const refreshBtn = document.querySelector('#refreshButton');
     const ScoreDisplay = document.querySelector('#score');
     const grid = document.querySelector('.gameGrid');
 
@@ -43,6 +44,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     let timerId;
     let paused = true;
 
+//HTML INITIALISATION_________________________________________________________________________________________________
 
     //Block variables
     const testBlock = [
@@ -64,6 +66,8 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     let leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
     let rightEdge = current.some(index => (currentPosition + index) % width === width-1);
 
+//BLOCK/GAME INITIALISATION_________________________________________________________________________________________________
+
     function blockDraw() {
         current.forEach(index => { //For each block it will fill the relevant square based on position
             squares[currentPosition + index].classList.add('block');
@@ -80,15 +84,32 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     function moveUp(){
         leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
         rightEdge = current.some(index => (currentPosition + index) % width === width-1);
-        blockCheck(); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
+        blockCheck(false); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
         blockErase(); //Erases the block from the "canvas"
         currentPosition -= width; //Adds 10 to the value to raise the block downward
         blockDraw(); //Redraws the block afterwards
     }
+    
+    function flashUp(){
+        let flashable = true
+        let flashDistance = 0;
+        while(flashable == true){
+            if(!current.some(index => squares[currentPosition + index - width - flashDistance].classList.contains('filled'))){
+                flashDistance += width;
+
+            }else{
+                blockErase(); //Erases the block from the "canvas"
+                currentPosition -= flashDistance; //Adds 10 to the value to raise the block downward
+                blockDraw(); //Redraws the block afterwards
+                flashable = false;
+            }
+        }
+        
+    }
 
     //Block collision checking functionality
-    function blockCheck(){
-        if(current.some(index => squares[currentPosition + index - width].classList.contains('filled'))){
+    function blockCheck(unconditional){
+        if(current.some(index => squares[currentPosition + index - width].classList.contains('filled')) || unconditional){
             current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
             random = nextRandom; //Starts to instantiate a new Block
             currentRotation = 0;
@@ -117,12 +138,16 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
             if(key.keyCode === 37){ //If the left arrow is pressed
                 moveLeft();
             } else if(key.keyCode === 38){ //If the up arrow is pressed
-                blockCheck(); //Checks the blocks before it rotates
+                blockCheck(false); //Checks the blocks before it rotates
                 blockRotate(); //Then rotates the block
             } else if(key.keyCode === 39){ //If the right arrow is pressed
                 moveRight();
             } else if(key.keyCode === 40){ //If the down arrow is pressed
-                moveUp() //Fast drops the block
+                moveUp(); //Fast drops the block
+            } else if(key.keyCode === 32){ //If the space key is pressed
+                flashUp(); //Flash drops the block
+            } else if(key.keyCode === 17){ //If the control key is pressed
+                blockStick(); //Flash drops the block
             }
         }
     }
@@ -154,44 +179,74 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     }
 
     function blockRotate() {
-        leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
-        rightEdge = current.some(index => (currentPosition + index) % width === width-1);
-        let lodgedLeft = false;
-        let lodgedRight = false;
-        //squares[currentPosition + 2].classList.add('block')
+        blockErase();
+        let blockRotated = false;
+        //while loop here
+        while(!blockRotated){
+            leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+            rightEdge = current.some(index => (currentPosition + index) % width === width-1);
+            let savedmovement = 0; //i dont think we use this?
+            let savedrotation = currentRotation;
 
-        if(    current.some(element => squares[currentPosition + 2].classList.contains('filled'))
-            || current.some(element => squares[currentPosition + width + 2].classList.contains('filled'))
-            || current.some(element => squares[currentPosition + 2 - width].classList.contains('filled'))){ //Checks for block lodging on the right
-            lodgedRight = true;
-        }
-        if(    current.some(element => squares[currentPosition].classList.contains('filled'))
-            || current.some(element => squares[currentPosition + width].classList.contains('filled'))
-            || current.some(element => squares[currentPosition - width].classList.contains('filled'))){ //Checks for block lodging on the left
-            lodgedLeft = true;
-        }
-
-        console.log(lodgedRight + ", " + lodgedLeft + ", " + rightEdge + ", " + leftEdge);
-
-        if(lodgedLeft && lodgedRight
-            || lodgedLeft && rightEdge
-            || lodgedRight && leftEdge) {//Will not rotate if the block is stuck within a small 2 wide space
-        }else{
-            blockErase();
-            if(currentPosition % 10 == 9 || lodgedLeft){ //Checks if the centre block is on the edges as it can wrap to the other side
+            if(currentPosition % 10 == 9){ //Checks if the centre block is on the edges as it can wrap to the other side
                 currentPosition +=1; //Will move the centre right before rotating
-            }else if(currentPosition % 10 == 8  || lodgedRight){
+                savedmovement += 1;
+            }else if(currentPosition % 10 == 8){
                 currentPosition -= 1; //Will move the centre left before rotating
+                savedmovement -= 1;
             }
+        
+    
             currentRotation ++; //Iterates to the next rotation of block
             if(currentRotation === current.length+1){
                 currentRotation = 0;
             }
             current = Blocks[random][currentRotation];
+    
+            //check where it is
+            if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled"
+                console.log("1");
+                blockRotated = true;
+                current = Blocks[random][currentRotation];
+            }else if(!current.some(index => squares[currentPosition + index + 1].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
+                console.log("2");
+                blockRotated = true;
+                current = Blocks[random][currentRotation];
+                currentPosition += 1;
+            }else if(!current.some(index => squares[currentPosition + index - 1].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
+                console.log("3");
+                blockRotated = true;
+                current = Blocks[random][currentRotation];
+                currentPosition -= 1;
+            }else if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
+                console.log("4");
+                blockRotated = true;
+                current = Blocks[random][currentRotation];
+                currentPosition -= width;
+                
+            }else{
+                console.log("5");
+                current = Blocks[random][savedrotation];
+                currentPosition -= savedmovement;
+            }
+        }//while loop end here
             blockDraw();
-        }
+            
     }
 
+    function blockStick() {//Maybe cut these out and make more efficient because its repeated in blockrotate
+        leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+        rightEdge = current.some(index => (currentPosition + index) % width === width-1);
+
+        if(current.some(index => squares[currentPosition + index + 1].classList.contains('filled') && !rightEdge)
+        || current.some(index => squares[currentPosition + index - 1].classList.contains('filled')) && !leftEdge){//if any squares dont overlap with "filled" a block up
+            console.log("STICK");
+            blockCheck(true); //Uses an unconditional statement to overlook the checks needed for a block to be filled
+        }
+        
+    }
+
+//GAME FUNCTIONS_________________________________________________________________________________________________
 
     //Show preview squares
     const displaySquares = document.querySelectorAll('.preview div');
@@ -211,16 +266,38 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
         })
     }
 
-    startBtn.addEventListener('click', () =>{
+    startBtn.addEventListener('click', () =>{    
         if(paused == false){
             clearInterval(timerId);
             paused = true; //Pauses the game using this variable as you cannot directly check timerID for values
         }else{
             blockDraw(); //Redraws the block
-            timerId = setInterval(moveUp, 200);
+            timerId = setInterval(moveUp, 500);
             paused = false;
             nextRandom = Math.floor(Math.random()*Blocks.length); //Resets the next random block
             displayShape();
+        }
+    })
+
+//PREVIEW AND MISC FUNCTIONALITY_________________________________________________________________________________________________
+
+    let testValue = 0;//Temporary to test if I can locally save variables like score__________________________________________________________
+    refreshBtn.addEventListener('click', () =>{
+        //Temporary to test if I can locally save variables like score__________________________________________________________
+        testValue = localStorage.getItem('testNo')
+        testValue ++;
+        localStorage.setItem('testNo', testValue);
+        document.getElementById('score').innerHTML = localStorage.getItem('testNo')
+        //Temporary to test if I can locally save variables like score__________________________________________________________
+
+        if (confirm('Are you sure you want to refresh')) {
+            alert("refreshed");
+            //instead of refreshing every variable via tedious means Im going to locally store necessary values
+            location.reload();
+            
+            
+        }else{
+
         }
     })
 
