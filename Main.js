@@ -8,8 +8,14 @@ let applyHTMLP = document.createDocumentFragment();
 
 //Game Border
 for(let i = 0; i < 10; i++){//Creates 10 squares to fill the top border of the game grid
+    
     let divGen = document.createElement('div');
-    divGen.style.backgroundColor = 'green';
+
+    /*if(i %2 == 0){
+        divGen.style.marginTop = '-10px'
+    }*/
+
+    divGen.style.backgroundColor = 'black';
     divGen.className = 'filled';
     applyHTML.appendChild(divGen);
 }
@@ -17,12 +23,18 @@ for(let i = 0; i < 10; i++){//Creates 10 squares to fill the top border of the g
 //Game Blocks
 for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
     let divGen = document.createElement('div');
+    /*if(i %2 == 0){ //Makes the hexagon grid (CANCELLED)
+        divGen.style.marginTop = '-10px'
+    }*/
     applyHTML.appendChild(divGen);
 }
 
 //Game Preview Box
     for(let i = 0; i < 9; i++){//Creates 9 squares to fill the preview square
         let divGen = document.createElement('div');
+        /*if(i %2 == 0){ //Makes the hexagon grid (CANCELLED)
+            divGen.style.marginTop = '-10px'
+        }*/
         applyHTMLP.appendChild(divGen);
     }
 
@@ -47,15 +59,62 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 //HTML INITIALISATION_________________________________________________________________________________________________
 
     //Block variables
-    const testBlock = [
-        //[0,1+width, 2+width*2] How the basic grid system works
+    const solidBlock = [ //check why this just dies idk why_________________________________________________________________________________________________
+        [0, 1, 2, 10, 11, 12, 20, 21, 22],
+        [0, 1, 2, 10, 11, 12, 20, 21, 22],
+        [0, 1, 2, 10, 11, 12, 20, 21, 22],
+        [0, 1, 2, 10, 11, 12, 20, 21, 22]
+    ]
+    const aBlock = [
         [1+width,1+width*2,2], //Stores each rotation of the same block shape
         [width, 1+width, 2+width*2],
         [1,width+1, width*2],
         [0,1+width, 2+width]
     ]
+    const bBlock = [
+        [1+width,1+width*2,2], //Stores each rotation of the same block shape
+        [width, 1+width, 2+width*2],
+        [1,width+1, width*2],
+        [0,1+width, 2+width]
+    ]
+    const cBlock = [
+        [1+width,1+width*2,2], //Stores each rotation of the same block shape
+        [width, 1+width, 2+width*2],
+        [1,width+1, width*2],
+        [0,1+width, 2+width]
+    ]
+    const dBlock = [
+        [1+width,1+width*2,2], //Stores each rotation of the same block shape
+        [width, 1+width, 2+width*2],
+        [1,width+1, width*2],
+        [0,1+width, 2+width]
+    ]
+    const eBlock = [
+        [1+width,1+width*2,2], //Stores each rotation of the same block shape
+        [width, 1+width, 2+width*2],
+        [1,width+1, width*2],
+        [0,1+width, 2+width]
+    ]
+    const fBlock = [
+        [1+width,1+width*2,2], //Stores each rotation of the same block shape
+        [width, 1+width, 2+width*2],
+        [1,width+1, width*2],
+        [0,1+width, 2+width]
+    ]
+    
+    const Blocks = [aBlock];//testBlock]; //Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
 
-    const Blocks = [testBlock]; //Blocks are stored in 1 larger array
+    let blockColour = [ //Defaulted to red to prevent null values
+        ['red'],['red'],['red'],
+        ['red'],['red'],['red'],
+        ['red'],['red'],['red']
+    ]
+    const availableColours = [
+        //['red']//for testing matches
+        ['yellow'], ['red'], ['purple'], ['green']
+    ]
+
+    
     let random = 0; //Random selection of blocks
 
     let currentPosition = 170; //Position of the centre of the block on the board
@@ -67,16 +126,40 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
     let rightEdge = current.some(index => (currentPosition + index) % width === width-1);
 
 //BLOCK/GAME INITIALISATION_________________________________________________________________________________________________
+    //instantiateBlock();
+
+    function instantiateBlock(){
+        //colour for loop
+        for(let i=0;i < blockColour.length; i++){
+            
+            blockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
+        }
+
+        random = nextRandom; //Starts to instantiate a new Block
+        currentRotation = 0;
+        nextRandom = Math.floor(Math.random() * Blocks.length);
+        current = Blocks[0][0]; //Doesnt yet use randomisation as there is only 1 block
+        currentPosition = 170;//183;
+    }
 
     function blockDraw() {
         current.forEach(index => { //For each block it will fill the relevant square based on position
             squares[currentPosition + index].classList.add('block');
+
+            if(index >= 20){ //Offsets by 14 as thats the next colour down in position
+                squares[currentPosition + index].style.backgroundColor = blockColour[index - 14];
+            }else if(index >= 10){ //Offsets by 7 as thats the next colour down in position
+                squares[currentPosition + index].style.backgroundColor = blockColour[index - 7];
+            }else{
+                squares[currentPosition + index].style.backgroundColor = blockColour[index];
+            }
         })
     }
 
     function blockErase(){ //Removes all instances of the block, similar to a canvas clearing
         current.forEach(index => {
             squares[currentPosition + index].classList.remove('block');
+            squares[currentPosition + index].style.removeProperty("background-color");
         })
     }
 
@@ -90,6 +173,8 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
         blockDraw(); //Redraws the block afterwards
     }
     
+
+
     function flashUp(){
         let flashable = true
         let flashDistance = 0;
@@ -109,17 +194,133 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     //Block collision checking functionality
     function blockCheck(unconditional){
+        let blocksToClear = [];
+        
         if(current.some(index => squares[currentPosition + index - width].classList.contains('filled')) || unconditional){
             current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
-            random = nextRandom; //Starts to instantiate a new Block
-            currentRotation = 0;
-            nextRandom = Math.floor(Math.random() * Blocks.length);
-            current = Blocks[0][0]; //Doesnt yet use randomisation as there is only 1 block
-            currentPosition = 170;//183;
+            current.forEach(index => { //For each block newly placed it will reiterate <- this works fine
+                //let newblock = squares[currentPosition + index]; //Do i even need this?
+
+                let matchingBlocks = []; //Creates an array of all the blocks that need to be destroyed, also being used to keep the flower search iterating
+                let arrayIndex = 0; //Used to iterate the while loop for the flower search
+                matchingBlocks.push(currentPosition + index) //Puts the current selected block into the flower search array to start the search
+
+                while(arrayIndex < matchingBlocks.length){
+
+                    if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + 1))){
+                        matchingBlocks.push(matchingBlocks[arrayIndex] + 1); //If the block is to the right it adds it to the flowering array
+                    }
+                    if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - 1))){
+                        matchingBlocks.push(matchingBlocks[arrayIndex] - 1); //If the block is to the left it adds it to the flowering array
+                    }
+                    if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + width))){
+                        matchingBlocks.push(matchingBlocks[arrayIndex] + width); //If the block is above it adds it to the flowering array
+                    }
+                    if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - width))){
+                        matchingBlocks.push(matchingBlocks[arrayIndex] - width); //If the block is below it adds it to the flowering array
+                    }
+                    arrayIndex++; //Iterates the loop
+                    
+                }
+                //console.log(matchingBlocks);
+                if(arrayIndex >= 5){
+                    for(let i = matchingBlocks.length - 1; i > -1; i--){//afterwards clears them
+                        blocksToClear.push(matchingBlocks[i]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks
+                    }
+                }
+
+                matchingBlocks = []; //Resets matching blocks to check for the next block
+            });
+
+            //New block instantiating
+            instantiateBlock();
             blockDraw(); //Draws the new instantiated block
             displayShape(); //Displays the new shape
             gameOver(); //Checks for a game over
+            
         }
+        //Clears all of the blocks
+        for(let i = blocksToClear.length - 1; i> -1; i--){
+            squares[blocksToClear[i]].classList.remove('block'); //Removes all the required classes and colours
+            squares[blocksToClear[i]].classList.remove('filled');
+            squares[blocksToClear[i]].style.removeProperty("background-color");
+        }
+        //Gravity________________________________________________________________________________________________________________________________________________________________________________________________   
+
+        let gravityCheck = [];
+        let gravityAffect = [];
+
+        //for loop using the sides (10,20 etc and  19,29,39+ bottom 10,11,12,13,14,15,16,17,18,19,20)
+        for(let i = 10; i < 20; i++){
+            if(squares[i].classList.contains('block')){
+                gravityCheck.push(i);
+            }
+        }
+        
+        let arrayGIndex = 0;
+        while(arrayGIndex < gravityCheck.length){
+            //console.log(gravityCheck.length)
+            
+            if(squares[(gravityCheck[arrayGIndex]) + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + 1))){
+                gravityCheck.push(gravityCheck[arrayGIndex] + 1); //If the block is to the right it adds it to the flowering array
+            }
+            if(squares[(gravityCheck[arrayGIndex]) - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - 1))){
+                gravityCheck.push(gravityCheck[arrayGIndex] - 1); //If the block is to the left it adds it to the flowering array
+            }
+            if(squares[(gravityCheck[arrayGIndex]) + width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width))){
+                gravityCheck.push(gravityCheck[arrayGIndex] + width); //If the block is above it adds it to the flowering array
+            }
+            if(squares[(gravityCheck[arrayGIndex]) - width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width)) && (gravityCheck[arrayGIndex] - width) > 10){
+                gravityCheck.push(gravityCheck[arrayGIndex] - width); //If the block is below it adds it to the flowering array
+            }
+
+
+
+
+            if(squares[(gravityCheck[arrayGIndex]) + width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width + 1))){
+                gravityCheck.push(gravityCheck[arrayGIndex] + width + 1); //If the block is above it adds it to the flowering array
+            }
+            if(squares[(gravityCheck[arrayGIndex]) + width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width - 1))){
+                gravityCheck.push(gravityCheck[arrayGIndex] + width - 1); //If the block is below it adds it to the flowering array
+            }
+            if(squares[(gravityCheck[arrayGIndex]) - width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width + 1))&& (gravityCheck[arrayGIndex] - width) >= 10){
+                gravityCheck.push(gravityCheck[arrayGIndex] - width + 1); //If the block is above it adds it to the flowering array
+            }
+            if(squares[(gravityCheck[arrayGIndex]) - width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width - 1)) && (gravityCheck[arrayGIndex] - width) >= 10){
+                gravityCheck.push(gravityCheck[arrayGIndex] - width - 1); //If the block is below it adds it to the flowering array
+            }
+            arrayGIndex++; //Iterates the loop
+            
+        }
+
+        //current.forEach(index => squares[currentPosition + index])
+        /*current.forEach(index => { 
+            if(!gravityCheck.includes(squares[currentPosition + index])){
+
+            }
+        })*/
+
+
+        for(let i = squares.length - 1; i > -1; i--){
+            if(!gravityCheck.includes(i)){
+                if(squares[i].style.backgroundColor && squares[i].style.backgroundColor != "black"){
+                    gravityAffect.push(i)
+                }
+            }
+        }
+
+        for(let i = gravityAffect.length - 1; i > -1; i--){
+            squares[gravityAffect[i]].style.backgroundColor = "transparent"
+            squares[gravityAffect[i]].classList.remove('block');
+            squares[gravityAffect[i]].classList.remove('filled')
+            console.log(gravityAffect);
+
+            //console.log(squares[gravityCheck[i]].backgroundColor)
+            //blocks that are affected is gravityAffect.length - current.length i think
+        }
+        
+        blocksToClear = [];
+        gravityCheck = [];
     }
 
     //Input dedicated functions
@@ -137,12 +338,12 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
         if(!paused){ //User can use the control keys on keyboards if the game is un-paused
             if(key.keyCode === 37){ //If the left arrow is pressed
                 moveLeft();
-            } else if(key.keyCode === 38){ //If the up arrow is pressed
+            } else if(key.keyCode === 40){ //If the down arrow is pressed
                 blockCheck(false); //Checks the blocks before it rotates
                 blockRotate(); //Then rotates the block
             } else if(key.keyCode === 39){ //If the right arrow is pressed
                 moveRight();
-            } else if(key.keyCode === 40){ //If the down arrow is pressed
+            } else if(key.keyCode === 38){ //If the up arrow is pressed
                 moveUp(); //Fast drops the block
             } else if(key.keyCode === 32){ //If the space key is pressed
                 flashUp(); //Flash drops the block
@@ -195,7 +396,6 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
                 currentPosition -= 1; //Will move the centre left before rotating
                 savedmovement -= 1;
             }
-        
     
             currentRotation ++; //Iterates to the next rotation of block
             if(currentRotation === current.length+1){
@@ -203,35 +403,42 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
             }
             current = Blocks[random][currentRotation];
     
-            //check where it is
+            //Checks where the new block is
             if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled"
-                console.log("1");
                 blockRotated = true;
                 current = Blocks[random][currentRotation];
             }else if(!current.some(index => squares[currentPosition + index + 1].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
-                console.log("2");
                 blockRotated = true;
                 current = Blocks[random][currentRotation];
-                currentPosition += 1;
+                currentPosition += 1; //It will rotate the block, but also push it to the right side
             }else if(!current.some(index => squares[currentPosition + index - 1].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
-                console.log("3");
                 blockRotated = true;
                 current = Blocks[random][currentRotation];
-                currentPosition -= 1;
+                currentPosition -= 1; //It will rotate the block, but also push it to the left side
             }else if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
-                console.log("4");
                 blockRotated = true;
                 current = Blocks[random][currentRotation];
-                currentPosition -= width;
+                currentPosition -= width; //It will rotate the block, but also push it upwards
                 
-            }else{
-                console.log("5");
+            }else{ //If it cannot rotate it defaults back to the original rotation, but the rotation checking will keep iterating for a new rotation in the meantime
                 current = Blocks[random][savedrotation];
                 currentPosition -= savedmovement;
             }
-        }//while loop end here
-            blockDraw();
-            
+            //Colour array rotates
+            let colourSave = blockColour[0];
+            blockColour[0] = blockColour[6];
+            blockColour[6] = blockColour[8];
+            blockColour[8] = blockColour[2];
+            blockColour[2] = colourSave
+
+            colourSave = blockColour[1];
+            blockColour[1] = blockColour[3];
+            blockColour[3] = blockColour[7];
+            blockColour[7] = blockColour[5];
+            blockColour[5] = colourSave
+            //blockColour[4] needs no change as its the centre
+        }
+            blockDraw();      
     }
 
     function blockStick() {//Maybe cut these out and make more efficient because its repeated in blockrotate
@@ -240,13 +447,12 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
         if(current.some(index => squares[currentPosition + index + 1].classList.contains('filled') && !rightEdge)
         || current.some(index => squares[currentPosition + index - 1].classList.contains('filled')) && !leftEdge){//if any squares dont overlap with "filled" a block up
-            console.log("STICK");
             blockCheck(true); //Uses an unconditional statement to overlook the checks needed for a block to be filled
         }
         
     }
 
-//GAME FUNCTIONS_________________________________________________________________________________________________
+//GAME OFF WINDOW FUNCTIONS_________________________________________________________________________________________________
 
     //Show preview squares
     const displaySquares = document.querySelectorAll('.preview div');
@@ -279,7 +485,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
         }
     })
 
-//PREVIEW AND MISC FUNCTIONALITY_________________________________________________________________________________________________
+//PREVIEW AND MISC FUNCTIONALITY___________________________________________________________________________________________________________________________________________________________
 
     let testValue = 0;//Temporary to test if I can locally save variables like score__________________________________________________________
     refreshBtn.addEventListener('click', () =>{
