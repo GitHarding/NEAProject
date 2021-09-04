@@ -21,6 +21,7 @@ margin-bottom: -80px;*/
 }
 
 .block {
+    border-radius:8px;
     background-color: blue;
 }
 
@@ -29,6 +30,7 @@ margin-bottom: -80px;*/
     margin-left: 50px;
     width:60px;
     height:60px;
+    border-radius:8px;
     display: flex;
     flex-wrap: wrap;
     background-color: red;

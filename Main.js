@@ -59,50 +59,50 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 //HTML INITIALISATION_________________________________________________________________________________________________
 
     //Block variables
-    const solidBlock = [ //check why this just dies idk why_________________________________________________________________________________________________
+    const solidBlock = [ //check why this doesnt work, completely unsure_________________________________________________________________________________________________
         [0, 1, 2, 10, 11, 12, 20, 21, 22],
         [0, 1, 2, 10, 11, 12, 20, 21, 22],
         [0, 1, 2, 10, 11, 12, 20, 21, 22],
         [0, 1, 2, 10, 11, 12, 20, 21, 22]
     ]
-    const aBlock = [
+    const aBlock = [ //Half L Block
         [1+width,1+width*2,2], //Stores each rotation of the same block shape
         [width, 1+width, 2+width*2],
         [1,width+1, width*2],
         [0,1+width, 2+width]
     ]
-    const bBlock = [
-        [1+width,1+width*2,2], //Stores each rotation of the same block shape
-        [width, 1+width, 2+width*2],
-        [1,width+1, width*2],
-        [0,1+width, 2+width]
+    const bBlock = [ //Nugget Block
+        [1, 1+width, 2+width], //Stores each rotation of the same block shape
+        [1+width, 1+width*2, 2+width],
+        [width, 1+width, 1+width*2],
+        [width, 1, 1+width]
     ]
-    const cBlock = [
-        [1+width,1+width*2,2], //Stores each rotation of the same block shape
-        [width, 1+width, 2+width*2],
-        [1,width+1, width*2],
-        [0,1+width, 2+width]
+    const cBlock = [//V Block
+        [0, 1+width, 2], //Stores each rotation of the same block shape
+        [2, 1+width, 2+width*2],
+        [width*2, 1+width, 2+width*2],
+        [0, 1+width, width*2]
     ]
-    const dBlock = [
-        [1+width,1+width*2,2], //Stores each rotation of the same block shape
-        [width, 1+width, 2+width*2],
-        [1,width+1, width*2],
-        [0,1+width, 2+width]
+    const dBlock = [ // "/" Block
+        [0, 1+width, 2+width*2], //Stores each rotation of the same block shape
+        [2, 1+width, width*2],
+        [2+width*2, 1+width, 0],
+        [width*2, 1+width, 2]
     ]
     const eBlock = [
-        [1+width,1+width*2,2], //Stores each rotation of the same block shape
-        [width, 1+width, 2+width*2],
-        [1,width+1, width*2],
-        [0,1+width, 2+width]
+        [1, 1+width, 1+width*2], //Stores each rotation of the same block shape
+        [width, 1+width, 2+width],
+        [1, 1+width, 1+width*2],
+        [2+width, 1+width, width]
     ]
     const fBlock = [
-        [1+width,1+width*2,2], //Stores each rotation of the same block shape
-        [width, 1+width, 2+width*2],
-        [1,width+1, width*2],
-        [0,1+width, 2+width]
+        [1, 1+width, 1+width*2, 2+width*2], //Stores each rotation of the same block shape
+        [width, width*2, 1+width, 2+width],
+        [0, 1, 1+width, 1+width*2],
+        [width, 1+width, 2+width, 2]
     ]
     
-    const Blocks = [aBlock];//testBlock]; //Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
+    let Blocks = [aBlock];//Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
 
     let blockColour = [ //Defaulted to red to prevent null values
         ['red'],['red'],['red'],
@@ -137,9 +137,9 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
         random = nextRandom; //Starts to instantiate a new Block
         currentRotation = 0;
-        nextRandom = Math.floor(Math.random() * Blocks.length);
+        nextRandom = Math.floor(Math.random() * Blocks.length); //_________________________________________________________________________________________________ WORK FROM HERE
         current = Blocks[0][0]; //Doesnt yet use randomisation as there is only 1 block
-        currentPosition = 170;//183;
+        currentPosition = 183;
     }
 
     function blockDraw() {
@@ -245,7 +245,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
             squares[blocksToClear[i]].classList.remove('filled');
             squares[blocksToClear[i]].style.removeProperty("background-color");
         }
-        //Gravity________________________________________________________________________________________________________________________________________________________________________________________________   
+        //Gravity
 
         let gravityCheck = [];
         let gravityAffect = [];
@@ -260,46 +260,49 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
         let arrayGIndex = 0;
         while(arrayGIndex < gravityCheck.length){
             //console.log(gravityCheck.length)
-            
-            if(squares[(gravityCheck[arrayGIndex]) + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + 1))){
-                gravityCheck.push(gravityCheck[arrayGIndex] + 1); //If the block is to the right it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) + 1]){
+                if(squares[(gravityCheck[arrayGIndex]) + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + 1))){
+                    gravityCheck.push(gravityCheck[arrayGIndex] + 1); //If the block is to the right it adds it to the flowering array
+                }
             }
-            if(squares[(gravityCheck[arrayGIndex]) - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - 1))){
-                gravityCheck.push(gravityCheck[arrayGIndex] - 1); //If the block is to the left it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) - 1]){
+                if(squares[(gravityCheck[arrayGIndex]) - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - 1))){
+                    gravityCheck.push(gravityCheck[arrayGIndex] - 1); //If the block is to the left it adds it to the flowering array
+                }
             }
-            if(squares[(gravityCheck[arrayGIndex]) + width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width))){
-                gravityCheck.push(gravityCheck[arrayGIndex] + width); //If the block is above it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) + width]){
+                if(squares[(gravityCheck[arrayGIndex]) + width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width))){
+                    gravityCheck.push(gravityCheck[arrayGIndex] + width); //If the block is above it adds it to the flowering array
+                }
             }
-            if(squares[(gravityCheck[arrayGIndex]) - width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width)) && (gravityCheck[arrayGIndex] - width) > 10){
-                gravityCheck.push(gravityCheck[arrayGIndex] - width); //If the block is below it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) - width]){
+                if(squares[(gravityCheck[arrayGIndex]) - width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width)) && (gravityCheck[arrayGIndex] - width) > 10){
+                    gravityCheck.push(gravityCheck[arrayGIndex] - width); //If the block is below it adds it to the flowering array
+                }
             }
-
-
-
-
-            if(squares[(gravityCheck[arrayGIndex]) + width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width + 1))){
-                gravityCheck.push(gravityCheck[arrayGIndex] + width + 1); //If the block is above it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) + width + 1]){
+                if(squares[(gravityCheck[arrayGIndex]) + width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width + 1))){
+                    gravityCheck.push(gravityCheck[arrayGIndex] + width + 1); //If the block is above it adds it to the flowering array
+                }
             }
-            if(squares[(gravityCheck[arrayGIndex]) + width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width - 1))){
-                gravityCheck.push(gravityCheck[arrayGIndex] + width - 1); //If the block is below it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) + width - 1]){
+                if(squares[(gravityCheck[arrayGIndex]) + width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width - 1))){
+                    gravityCheck.push(gravityCheck[arrayGIndex] + width - 1); //If the block is below it adds it to the flowering array
+                }
             }
-            if(squares[(gravityCheck[arrayGIndex]) - width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width + 1))&& (gravityCheck[arrayGIndex] - width) >= 10){
-                gravityCheck.push(gravityCheck[arrayGIndex] - width + 1); //If the block is above it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) - width + 1]){
+                if(squares[(gravityCheck[arrayGIndex]) - width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width + 1))&& (gravityCheck[arrayGIndex] - width) >= 10){
+                    gravityCheck.push(gravityCheck[arrayGIndex] - width + 1); //If the block is above it adds it to the flowering array
+                }
             }
-            if(squares[(gravityCheck[arrayGIndex]) - width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width - 1)) && (gravityCheck[arrayGIndex] - width) >= 10){
-                gravityCheck.push(gravityCheck[arrayGIndex] - width - 1); //If the block is below it adds it to the flowering array
+            if(squares[(gravityCheck[arrayGIndex]) - width - 1]){
+                if(squares[(gravityCheck[arrayGIndex]) - width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width - 1)) && (gravityCheck[arrayGIndex] - width) >= 10){
+                    gravityCheck.push(gravityCheck[arrayGIndex] - width - 1); //If the block is below it adds it to the flowering array
+                }
             }
             arrayGIndex++; //Iterates the loop
             
         }
-
-        //current.forEach(index => squares[currentPosition + index])
-        /*current.forEach(index => { 
-            if(!gravityCheck.includes(squares[currentPosition + index])){
-
-            }
-        })*/
-
 
         for(let i = squares.length - 1; i > -1; i--){
             if(!gravityCheck.includes(i)){
