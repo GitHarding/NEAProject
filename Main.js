@@ -54,7 +54,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     //Timer based variables
     let timerId;
-    let paused = true;
+    let paused = true; //Used to check if a pause is occuring
 
 //HTML INITIALISATION_________________________________________________________________________________________________
 
@@ -176,8 +176,8 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
 
     function flashUp(){
-        let flashable = true
-        let flashDistance = 0;
+        let flashable = true //Checks if a flash block can occur
+        let flashDistance = 0; //Checks the distance of a flash drop for it to happen
         while(flashable == true){
             if(!current.some(index => squares[currentPosition + index - width - flashDistance].classList.contains('filled'))){
                 flashDistance += width;
@@ -194,7 +194,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     //Block collision checking functionality
     function blockCheck(unconditional){
-        let blocksToClear = [];
+        let blocksToClear = []; //Takes all the blocks to clear, saves for later use
         
         if(current.some(index => squares[currentPosition + index - width].classList.contains('filled')) || unconditional){
             current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
@@ -247,8 +247,8 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
         }
         //Gravity
 
-        let gravityCheck = [];
-        let gravityAffect = [];
+        let gravityCheck = []; //Checks for blocks affected by gravity
+        let gravityAffect = []; //Takes the blocks that are able to be affected by gravity
 
         //for loop using the sides (10,20 etc and  19,29,39+ bottom 10,11,12,13,14,15,16,17,18,19,20)
         for(let i = 10; i < 20; i++){
@@ -384,7 +384,7 @@ document.getElementsByClassName("preview")[0].appendChild(applyHTMLP);
 
     function blockRotate() {
         blockErase();
-        let blockRotated = false;
+        let blockRotated = false; //Used to iterate until a valid rotation is found
         //while loop here
         while(!blockRotated){
             leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
