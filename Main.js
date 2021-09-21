@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     current = Blocks[random][savedrotation];
                     currentPosition -= savedmovement;
                 }
-                //Colour array rotates
+                //Colour array rotation
                 let colourSave = blockColour[0];
                 blockColour[0] = blockColour[6];
                 blockColour[6] = blockColour[8];
