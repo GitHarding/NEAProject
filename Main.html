@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
+ 
+ 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
     <title>BlockBuster</title>
     <link href="Styles.css" rel="stylesheet" type="text/css" />
 </head>
-
-
-
+ 
+ 
+ 
 <body>
-    <p>Test Text</p>
     <button id="startButton">Pause</button>
     <button id="refreshButton">Reset</button>
-
+ 
     <!-- make this proper with for loop -->
     <p id="score">Score: 0</p>
-
+ 
     <div class="container">
-        
-        <div class="gameGrid">
-        </div>
-
-
-        <div class="preview">
-        </div>
-
+        <script src="Main.js"></script>
+        <div class="gameGrid"></div>
+        <div class="preview"></div>
     </div>
-
-    <script src="Main.js"></script>
+ 
+    <div class="container">
+        <!--<script src="Main.js"></script> This doesnt work as it calls the exact same values, we need a way of encapsulaing it-->
+        <div class="gameGrid"></div>
+        <div class="preview"></div>
+    </div>
+    
 </body>
 </html>
+
