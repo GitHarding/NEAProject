@@ -130,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
         let rightEdge = current.some(index => (currentPosition + index) % width === width-1);
      
+        //Variables are declared here as initialisations as otherwise it can affect their values in functions
         let initialising = true;
+        let blocksToClear = []; //Takes all the blocks to clear, saves for later use
      
     //BLOCK/GAME INITIALISATION_________________________________________________________________________________________________
         if(initialising == true){
@@ -227,8 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
      
         //Block collision checking functionality
         function blockCheck(unconditional){
-            let blocksToClear = []; //Takes all the blocks to clear, saves for later use
-            
+            console.log("_________________________________")
             if(current.some(index => squares[currentPosition + index - width].classList.contains('filled')) || unconditional){
                 current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
                 current.forEach(index => { //For each block newly placed it will reiterate <- this works fine
@@ -239,29 +240,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     matchingBlocks.push(currentPosition + index) //Puts the current selected block into the flower search array to start the search
      
                     while(arrayIndex < matchingBlocks.length){
-     
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + 1) && (arrayIndex % 10 !=9))){
                             matchingBlocks.push(matchingBlocks[arrayIndex] + 1); //If the block is to the right it adds it to the flowering array
-                            console.log("here")
+                            console.log(matchingBlocks[arrayIndex] + 1)
+                            console.log((arrayIndex % 10 !=9))
                         }
-                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - 1)) && (arrayIndex % 10 !=1)){
+                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - 1) && (arrayIndex % 10 !=0))){   
                             matchingBlocks.push(matchingBlocks[arrayIndex] - 1); //If the block is to the left it adds it to the flowering array
-                            console.log("there")
+                            console.log(matchingBlocks[arrayIndex] - 1)
+                            console.log(arrayIndex % 10 !=0)
                         }
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + width))){
                             matchingBlocks.push(matchingBlocks[arrayIndex] + width); //If the block is above it adds it to the flowering array
+                            console.log(matchingBlocks[arrayIndex] + width)
                         }
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - width))){
                             matchingBlocks.push(matchingBlocks[arrayIndex] - width); //If the block is below it adds it to the flowering array
+                            console.log(matchingBlocks[arrayIndex] - width)
                         }
                         arrayIndex++; //Iterates the loop
                         
                     }
-                    //console.log(matchingBlocks);
+
                     if(arrayIndex >= 5){
                         for(let i = matchingBlocks.length - 1; i > -1; i--){//afterwards clears them
-                            blocksToClear.push(matchingBlocks[i]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks
+                            blocksToClear.push(squares[matchingBlocks[i]]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks
                         }
+                        
                     }
      
                     matchingBlocks = []; //Resets matching blocks to check for the next block
@@ -276,9 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             //Clears all of the blocks
             for(let i = blocksToClear.length - 1; i> -1; i--){
-                squares[blocksToClear[i]].classList.remove('block'); //Removes all the required classes and colours
-                squares[blocksToClear[i]].classList.remove('filled');
-                squares[blocksToClear[i]].style.removeProperty("background-color");
+                blocksToClear[i].classList.remove('filled'); //Removes all the required classes and colours
+                blocksToClear[i].classList.remove('block'); 
+                blocksToClear[i].style.removeProperty("background-color");
             }
             //Gravity
      
