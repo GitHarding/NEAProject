@@ -33,11 +33,12 @@ margin-bottom: -80px;*/
     border-radius:8px;
     display: flex;
     flex-wrap: wrap;
-    background-color: red;
+    background-color: black;
 }
 .preview div{
     width:20px;
     height:20px;
+    color: orange;
 }
 .container{
     outline-style: solid;
