@@ -8,13 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
      
     //Game Border
     for(let i = 0; i < 10; i++){//Creates 10 squares to fill the top border of the game grid
-        
         let divGen = document.createElement('div');
-     
-        /*if(i %2 == 0){
-            divGen.style.marginTop = '-10px'
-        }*/
-     
         divGen.style.backgroundColor = 'black';
         divGen.className = 'filled';
         applyHTML.appendChild(divGen);
@@ -23,9 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //Game Blocks
     for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
         let divGen = document.createElement('div');
-        /*if(i %2 == 0){ //Makes the hexagon grid (CANCELLED)
-            divGen.style.marginTop = '-10px'
-        }*/
         applyHTML.appendChild(divGen);
     }
      
@@ -55,11 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
         //Timer based variables
         let timerId;
         let paused = true; //Used to check if a pause is occuring
+        let pausedCountdown = 0; //Used to create a delay before the game is resumed
      
     //HTML INITIALISATION_________________________________________________________________________________________________
      
         //Block variables
-        const solidBlock = [ //check why this doesnt work, completely unsure_________________________________________________________________________________________________
+        const solidBlock = [ //Original Test Block
             [0, 1, 2, 10, 11, 12, 20, 21, 22],
             [0, 1, 2, 10, 11, 12, 20, 21, 22],
             [0, 1, 2, 10, 11, 12, 20, 21, 22],
@@ -95,36 +87,32 @@ document.addEventListener('DOMContentLoaded', () => {
             [1, 1+width, 1+width*2],
             [2+width, 1+width, width]
         ]
-        /*const fBlock = [ //FIGURE OUT WHY THIS DOESNT WORK
+        const fBlock = [
             [1, 1+width, 1+width*2, 2+width*2], //Stores each rotation of the same block shape
             [width, width*2, 1+width, 2+width],
             [0, 1, 1+width, 1+width*2],
-            [width, 1+width, 2+width, 2]
-        ]*/
+            [2, width, 1+width, 2+width]
+        ]
         
-        let Blocks = [aBlock]//, bBlock, cBlock, dBlock, eBlock];//Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
-        let nextBlocks = [bBlock];
-        let blockColour = [ //Defaulted to red to prevent null values
+        let Blocks = fBlock //Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
+        let nextBlocks = bBlock;
+        let blockColour = [ //Defaulted to green to prevent null values
             ['green'],['green'],['green'],
             ['green'],['green'],['green'],
             ['green'],['green'],['green']
         ]
-        let nextBlockColour = [
+        let nextBlockColour = [ //Defaulted to red to prevent null values
             ['red'],['red'],['red'],
             ['red'],['red'],['red'],
             ['red'],['red'],['red'] 
         ]
         const availableColours = [
-            //['red']//for testing matches
             ['yellow'], ['red'], ['purple'], ['green']
         ]
      
-        
-        let random = 0; //Random selection of blocks
-     
         let currentPosition = 183; //Position of the centre of the block on the board
-        let currentRotation// = 0; //the current rotation of the block
-        let current = Blocks[0][0]; //Stores the current block and the current rotation
+        let currentRotation = 0; //the current rotation of the block
+        let current = Blocks[0]; //Stores the current block and the current rotation
      
         let leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
         let rightEdge = current.some(index => (currentPosition + index) % width === width-1);
@@ -135,54 +123,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
         //Show preview squares
         const displaySquares = document.querySelectorAll('.preview div');
-        const displayWidth = 3; //Gives the width of the Divs
      
     //BLOCK/GAME INITIALISATION_________________________________________________________________________________________________
         if(initialising == true){
-
-
             for(let i=0;i < blockColour.length; i++){
                 blockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
                 nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
             }
+            randomBlock(Blocks);
+            current = Blocks[0]
+            randomBlock(nextBlocks);
+            
 
+            initialising = false; //Sets initialising to false as it has finished to initialise
+            blockDraw(); //Draws the block in the game window
+            displayShape(); //Displays the shape in the preview window
+        }
 
-            initialising = false;
-            blockDraw();
-            displayShape();
-            //instantiateBlock();
+        function randomBlock(){ //Function to return a random set of Blocks as it is used in multiple instances, for efficient code
+            switch(Math.floor(Math.random() * 6)){
+                case 1:
+                    return aBlock;
+                case 2:
+                    return bBlock;
+                case 3:
+                    return cBlock;
+                case 4:
+                    return dBlock;
+                case 5:
+                    return eBlock;
+                case 5:
+                    return fBlock;
+                }
+
         }
         
         function instantiateBlock(){
-            currentRotation = 0;
-            currentPosition = 183;
-            Blocks = nextBlocks;
-            current = Blocks[0][0];
+            currentRotation = 0; //Resets the block rotation
+            currentPosition = 183; //Resets the block position
+            Blocks = nextBlocks; //The next block is moved to the current, and a new one is generated below
+            current = Blocks[currentRotation]; //current is set to the new block, using the current rotation to default back to
 
             for(let i=0;i < blockColour.length; i++){
                 blockColour[i] = nextBlockColour[i];
                 nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
             }
-                
-            switch(Math.floor(Math.random() * 5)){
-                case 1:
-                    nextBlocks = [aBlock];
-                    break;
-                case 2:
-                    nextBlocks = [bBlock];
-                    break;
-                case 3:
-                    nextBlocks = [cBlock];
-                    break;
-                case 4:
-                    nextBlocks = [dBlock];
-                    break;
-                case 5:
-                    nextBlocks = [eBlock];
-                    break;
-                }
-
-                displayShape();     
+            randomBlock(nextBlocks)
+            displayShape(); //Displays the new shape in the preview window 
         }
      
         function blockDraw() {
@@ -208,12 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
      
         //Timer functionality
         function moveUp(){
-            leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
-            rightEdge = current.some(index => (currentPosition + index) % width === width-1);
-            blockCheck(false); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
-            blockErase(); //Erases the block from the "canvas"
-            currentPosition -= width; //Adds 10 to the value to raise the block downward
-            blockDraw(); //Redraws the block afterwards
+            if(paused == true){
+                pausedCountdown ++;
+                if(pausedCountdown > 3){
+                    paused = false; //Will play the game after 3*500ms countdown
+                    pausedCountdown = 0; //Resets the pausedcoundown variable
+                }
+            }else{
+                leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+                rightEdge = current.some(index => (currentPosition + index) % width === width-1);
+                blockCheck(false); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
+                blockErase(); //Erases the block from the "canvas"
+                currentPosition -= width; //Adds 10 to the value to raise the block downward
+                blockDraw(); //Redraws the block afterwards
+            }
         }
         
      
@@ -223,8 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let flashDistance = 0; //Checks the distance of a flash drop for it to happen
             while(flashable == true){
                 if(!current.some(index => squares[currentPosition + index - width - flashDistance].classList.contains('filled'))){
-                    flashDistance += width;
-     
+                    flashDistance += width; //Moves the block up a row to check if it can still keep moving upwards
                 }else{
                     blockErase(); //Erases the block from the "canvas"
                     currentPosition -= flashDistance; //Adds 10 to the value to raise the block downward
@@ -241,17 +235,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if(current.some(index => squares[currentPosition + index - width].classList.contains('filled')) || unconditional){
                 current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
                 current.forEach(index => { //For each block newly placed it will reiterate <- this works fine
-                    //let newblock = squares[currentPosition + index]; //Do i even need this?
      
                     let matchingBlocks = []; //Creates an array of all the blocks that need to be destroyed, also being used to keep the flower search iterating
                     let arrayIndex = 0; //Used to iterate the while loop for the flower search
                     matchingBlocks.push(currentPosition + index) //Puts the current selected block into the flower search array to start the search
-     
+
                     while(arrayIndex < matchingBlocks.length){
-                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + 1) && (arrayIndex % 10 !=9))){
+                        //Checking for blocks to the right will be ignored if the current block is at the right edge
+                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + 1)) && !(((squares.indexOf(squares[matchingBlocks[arrayIndex]])) % 10) - 9==0)){
                             matchingBlocks.push(matchingBlocks[arrayIndex] + 1); //If the block is to the right it adds it to the flowering array
                         }
-                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - 1) && (arrayIndex % 10 !=0))){   
+                        //Checking for blocks to the left will be ignored if the current block is at the left edge
+                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - 1)) && !(((squares.indexOf(squares[matchingBlocks[arrayIndex]])) % 10==0))){   
                             matchingBlocks.push(matchingBlocks[arrayIndex] - 1); //If the block is to the left it adds it to the flowering array
                         }
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + width))){
@@ -260,19 +255,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - width))){
                             matchingBlocks.push(matchingBlocks[arrayIndex] - width); //If the block is below it adds it to the flowering array
                         }
-                        arrayIndex++; //Iterates the loop
-                        
+                        arrayIndex++; //Iterates the loop 
                     }
-
                     if(arrayIndex >= 5){
                         for(let i = matchingBlocks.length - 1; i > -1; i--){//afterwards clears them
                             blocksToClear.push(squares[matchingBlocks[i]]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks
                         }
-                        
                     }
-     
                     matchingBlocks = []; //Resets matching blocks to check for the next block
                 });
+                console.log(blocksToClear)
      
                 //New block instantiating
                 instantiateBlock();
@@ -287,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 blocksToClear[i].style.removeProperty("background-color");
             }
             //Gravity
-     
             let gravityCheck = []; //Checks for blocks affected by gravity
             let gravityAffect = []; //Takes the blocks that are able to be affected by gravity
      
@@ -353,10 +344,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
      
             for(let i = gravityAffect.length - 1; i > -1; i--){
-                squares[gravityAffect[i]].style.backgroundColor = "transparent"
+                squares[gravityAffect[i]].style.backgroundColor = "transparent" //Removes gravity affected blocks and all values within them
                 squares[gravityAffect[i]].classList.remove('block');
                 squares[gravityAffect[i]].classList.remove('filled')
-                //blocks that are affected is gravityAffect.length - current.length i think
             }
             
             blocksToClear = [];
@@ -438,30 +428,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
         
                 currentRotation ++; //Iterates to the next rotation of block
-                if(currentRotation === current.length+1){
+                if(currentRotation == Blocks.length){
                     currentRotation = 0;
                 }
-                current = Blocks[random][currentRotation];
-        
+
+                current = Blocks[currentRotation];
                 //Checks where the new block is
                 if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled"
                     blockRotated = true;
-                    current = Blocks[random][currentRotation];
+                    current = Blocks[currentRotation];
                 }else if(!current.some(index => squares[currentPosition + index + 1].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
                     blockRotated = true;
-                    current = Blocks[random][currentRotation];
+                    current = Blocks[currentRotation];
                     currentPosition += 1; //It will rotate the block, but also push it to the right side
                 }else if(!current.some(index => squares[currentPosition + index - 1].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
                     blockRotated = true;
-                    current = Blocks[random][currentRotation];
+                    current = Blocks[currentRotation];
                     currentPosition -= 1; //It will rotate the block, but also push it to the left side
                 }else if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled" a block up
                     blockRotated = true;
-                    current = Blocks[random][currentRotation];
+                    current = Blocks[currentRotation];
                     currentPosition -= width; //It will rotate the block, but also push it upwards
                     
                 }else{ //If it cannot rotate it defaults back to the original rotation, but the rotation checking will keep iterating for a new rotation in the meantime
-                    current = Blocks[random][savedrotation];
+                    current = Blocks[savedrotation];
                     currentPosition -= savedmovement;
                 }
                 //Colour array rotation
@@ -498,15 +488,13 @@ document.addEventListener('DOMContentLoaded', () => {
         function displayShape(){
             displaySquares.forEach(square => {
                 square.classList.remove('block') //Clears the preview grid
+                square.style.backgroundColor = ('transparent');
             })            
-
-            nextBlocks[0][0].forEach(index =>  { //Adds the next shape to the preview grid
-
-                let previewPos = 0;
-                if(index == null){
-                    //console.log(nextBlocks[0][0][index])
+            nextBlocks[0].forEach(index =>  { //Adds the next shape to the preview grid
+                let previewPos = 0; //Resets the preview position
+                if(index == null){ //If the next index has no value it skips adding a block into the grid
                 }else{
-                    if(index.toString().length == 2){
+                    if(index.toString().length == 2){ //The first digit of the substring shows horizontal placement, part of the translation from a 10*3 grid
                         if(index.toString().substring(0,1) == 0){
                             //previewPos +=0
                         }else if(index.toString().substring(0,1) == 1){
@@ -515,7 +503,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             previewPos += 6
                         }
 
-                        if(index.toString().substring(1,2) == 0){
+                        if(index.toString().substring(1,2) == 0){//The second digit of the substring shows vertical placement, part of the translation from a 10*3 grid
                             //previewPos +=
                         }else if(index.toString().substring(1,2) == 1){
                             previewPos += 1
@@ -531,46 +519,53 @@ document.addEventListener('DOMContentLoaded', () => {
                             previewPos += 2
                         }
                     }
-
                 }
-                displaySquares[previewPos].classList.add('block');
+                displaySquares[previewPos].classList.add('block'); //Adds a block to the next position
             })
 
-            for(let index = 0; index < 9; index++){
-                displaySquares[index].style.backgroundColor = (nextBlockColour[index]);
-                //console.log(displaySquares[index])
+            for(let index = 0; index < 9; index++){ //Adds a colour value to the block
+                if(displaySquares[index].classList.contains('block')){
+                    displaySquares[index].style.backgroundColor = (nextBlockColour[index]);
+                }    
             }
-
         }
      
         startBtn.addEventListener('click', () =>{    
             if(paused == false){
+                let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
+                for(let i=0; i<grids.length; i++) {
+                  grids[i].style.backgroundColor = 'pink';
+                }
+
                 clearInterval(timerId);
                 paused = true; //Pauses the game using this variable as you cannot directly check timerID for values
+                startBtn.blur();//Deselects the button from the mouse
             }else{
+                startBtn.disabled = false;
+                let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
+                for(let i=0; i<grids.length; i++) {
+                  grids[i].style.backgroundColor = 'yellowgreen';
+                }
                 blockDraw(); //Redraws the block
+                clearInterval(timerId); //Needs to clear the interval otherwise there will be several individual calls at 500ms
                 timerId = setInterval(moveUp, 500);
-                paused = false;
+                
+                startBtn.blur();//Deselects the button from the mouse
             }
         })
      
     //PREVIEW AND MISC FUNCTIONALITY___________________________________________________________________________________________________________________________________________________________
-     
-        let testValue = 0;//Temporary to test if I can locally save variables like score__________________________________________________________
+        let testValue = 0;//Temporary to test if I can locally save variables like score
         refreshBtn.addEventListener('click', () =>{
-            //Temporary to test if I can locally save variables like score__________________________________________________________
             testValue = localStorage.getItem('testNo')
             testValue ++;
             localStorage.setItem('testNo', testValue);
             document.getElementById('score').innerHTML = localStorage.getItem('testNo')
-            //Temporary to test if I can locally save variables like score__________________________________________________________
      
             if (confirm('Are you sure you want to refresh')) {
                 alert("refreshed");
                 //instead of refreshing every variable via tedious means Im going to locally store necessary values
-                location.reload();
-                
-                
+                location.reload();                
             }else{
      
             }
