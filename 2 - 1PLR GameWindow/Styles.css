@@ -1,3 +1,28 @@
+.playerContainer{
+    outline-style: solid;
+    outline-color: black;
+    float: left;
+    display: flex;
+    padding: 20px;
+}
+ 
+#scoreP1{
+    margin-top: 20px;
+    margin-right: 20px;
+    width: 200px;
+}
+#scoreP2{
+    margin-top: 20px;
+    margin-right: 20px;
+    width: 200px;
+}
+ 
+.preview div{
+    width:20px;
+    height:20px;
+    color: orange;
+}
+ 
 .gameGrid{
     width:200px;
     height:420px;
@@ -11,6 +36,15 @@
  
 }
  
+.preview{
+    margin-left: 50px;
+    width:60px;
+    height:60px;
+    border-radius:8px;
+    display: flex;
+    flex-wrap: wrap;
+    background-color: black;
+}
 .gameGrid div{
     height: 20px;
     width: 20px;
@@ -25,21 +59,6 @@ margin-bottom: -80px;*/
     background-color: blue;
 }
  
- 
-.preview{
-    margin-left: 50px;
-    width:60px;
-    height:60px;
-    border-radius:8px;
-    display: flex;
-    flex-wrap: wrap;
-    background-color: black;
-}
-.preview div{
-    width:20px;
-    height:20px;
-    color: orange;
-}
 .container{
     outline-style: solid;
     outline-color: black;
@@ -48,4 +67,5 @@ margin-bottom: -80px;*/
     width: 312px;
     padding: 20px;
 }
+ 
 

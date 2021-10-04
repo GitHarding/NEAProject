@@ -17,20 +17,28 @@
     <button id="refreshButton">Reset</button>
  
     <!-- make this proper with for loop -->
-    <p id="score">Score: 0</p>
+    <br><br>
  
-    <div class="container">
-        <script src="Main.js"></script>
-        <div class="gameGrid"></div>
-        <div class="preview"></div>
-    </div>
- 
-    <div class="container">
-        <!--<script src="Main.js"></script> This doesnt work as it calls the exact same values, we need a way of encapsulaing it-->
-        <div class="gameGrid"></div>
-        <div class="preview"></div>
+    <div class="playerContainer">
+        <p id="scoreP1">Player 1 <br> Score: 0</p>
+        <div class="container">
+            <script src="Main.js"></script>
+            <div class="gameGrid"></div>
+            <div class="preview"></div>
+        </div>
     </div>
     
+    <div class="playerContainer">
+        <p id="scoreP2">Player 2 <br> Score: 0</p>
+        <div class="container">
+            <!--<script src="Main.js"></script> This doesnt work as it calls the exact same values, we need a way of encapsulaing it-->
+            <div class="gameGrid"></div>
+            <div class="preview"></div>
+        </div>
+    </div>
+ 
 </body>
 </html>
+ 
+ 
 

@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //Initialises The DIV grid in the CSS
     let applyHTML = document.createDocumentFragment();
     let applyHTMLP = document.createDocumentFragment();
-     
-     
+ 
     //Game Border
     for(let i = 0; i < 10; i++){//Creates 10 squares to fill the top border of the game grid
         let divGen = document.createElement('div');
@@ -49,7 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let pausedCountdown = 0; //Used to create a delay before the game is resumed
      
     //HTML INITIALISATION_________________________________________________________________________________________________
-     
+        let score = 0;
+ 
         //Block variables
         const solidBlock = [ //Original Test Block
             [0, 1, 2, 10, 11, 12, 20, 21, 22],
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ]
         
         let Blocks = fBlock //Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
-        let nextBlocks = bBlock;
+        let nextBlocks = aBlock;
         let blockColour = [ //Defaulted to green to prevent null values
             ['green'],['green'],['green'],
             ['green'],['green'],['green'],
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //Variables are declared here as initialisations as otherwise it can affect their values in functions
         let initialising = true;
         let blocksToClear = []; //Takes all the blocks to clear, saves for later use
-
+ 
         //Show preview squares
         const displaySquares = document.querySelectorAll('.preview div');
      
@@ -130,32 +130,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 blockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
                 nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
             }
-            randomBlock(Blocks);
+            Blocks = randomBlock();
+            console.log(Blocks[0])
             current = Blocks[0]
-            randomBlock(nextBlocks);
+            nextBlocks = randomBlock();
             
-
+ 
             initialising = false; //Sets initialising to false as it has finished to initialise
             blockDraw(); //Draws the block in the game window
             displayShape(); //Displays the shape in the preview window
         }
-
+ 
         function randomBlock(){ //Function to return a random set of Blocks as it is used in multiple instances, for efficient code
-            switch(Math.floor(Math.random() * 6)){
+            let result
+            switch(Math.floor(Math.random() * 6 + 1)){
                 case 1:
-                    return aBlock;
+                    console.log("A")
+                    result = aBlock;
+                    break;
                 case 2:
-                    return bBlock;
+                    console.log("B")
+                    result = bBlock;
+                    break;
                 case 3:
-                    return cBlock;
+                    console.log("C")
+                    result = cBlock;
+                    break;
                 case 4:
-                    return dBlock;
+                    console.log("D")
+                    result = dBlock;
+                    break;
                 case 5:
-                    return eBlock;
-                case 5:
-                    return fBlock;
+                    console.log("E")
+                    result = eBlock;
+                    break;
+                case 6:
+                    console.log("F")
+                    result = fBlock;
+                    break;
                 }
-
+                console.log(result)
+                return result;
         }
         
         function instantiateBlock(){
@@ -163,12 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPosition = 183; //Resets the block position
             Blocks = nextBlocks; //The next block is moved to the current, and a new one is generated below
             current = Blocks[currentRotation]; //current is set to the new block, using the current rotation to default back to
-
+ 
             for(let i=0;i < blockColour.length; i++){
                 blockColour[i] = nextBlockColour[i];
                 nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
             }
-            randomBlock(nextBlocks)
+            nextBlocks = randomBlock()
+            console.log("WHEN")
             displayShape(); //Displays the new shape in the preview window 
         }
      
@@ -239,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let matchingBlocks = []; //Creates an array of all the blocks that need to be destroyed, also being used to keep the flower search iterating
                     let arrayIndex = 0; //Used to iterate the while loop for the flower search
                     matchingBlocks.push(currentPosition + index) //Puts the current selected block into the flower search array to start the search
-
+ 
                     while(arrayIndex < matchingBlocks.length){
                         //Checking for blocks to the right will be ignored if the current block is at the right edge
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + 1)) && !(((squares.indexOf(squares[matchingBlocks[arrayIndex]])) % 10) - 9==0)){
@@ -262,9 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             blocksToClear.push(squares[matchingBlocks[i]]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks
                         }
                     }
+ 
                     matchingBlocks = []; //Resets matching blocks to check for the next block
                 });
-                console.log(blocksToClear)
      
                 //New block instantiating
                 instantiateBlock();
@@ -272,8 +288,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 gameOver(); //Checks for a game over
                 
             }
+ 
+            //Gets rid of duplicate Divs in an array
+            for(let i = 0; i < blocksToClear.length -1; i++){
+                for(let j = i+1; j < blocksToClear.length - 1; j++){
+                    if(i == j){
+                        blocksToClear.splice(j,1);
+                    }
+                }
+            }
+ 
             //Clears all of the blocks
             for(let i = blocksToClear.length - 1; i> -1; i--){
+                score ++;
                 blocksToClear[i].classList.remove('filled'); //Removes all the required classes and colours
                 blocksToClear[i].classList.remove('block'); 
                 blocksToClear[i].style.removeProperty("background-color");
@@ -337,18 +364,21 @@ document.addEventListener('DOMContentLoaded', () => {
      
             for(let i = squares.length - 1; i > -1; i--){
                 if(!gravityCheck.includes(i)){
-                    if(squares[i].style.backgroundColor && squares[i].style.backgroundColor != "black"){
+                    if(squares[i].style.backgroundColor && squares[i].style.backgroundColor != "black" && squares[i].classList.contains('filled')){
                         gravityAffect.push(i)
                     }
                 }
             }
      
             for(let i = gravityAffect.length - 1; i > -1; i--){
+                score -= 0.5;
                 squares[gravityAffect[i]].style.backgroundColor = "transparent" //Removes gravity affected blocks and all values within them
                 squares[gravityAffect[i]].classList.remove('block');
                 squares[gravityAffect[i]].classList.remove('filled')
             }
-            
+            console.log(document.getElementById("scoreP1").innerHTML)
+            console.log(score)
+            document.getElementById("scoreP1").innerHTML = ("Score: " + score)
             blocksToClear = [];
             gravityCheck = [];
         }
@@ -431,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(currentRotation == Blocks.length){
                     currentRotation = 0;
                 }
-
+ 
                 current = Blocks[currentRotation];
                 //Checks where the new block is
                 if(!current.some(index => squares[currentPosition + index].classList.contains('filled'))){//if any squares dont overlap with "filled"
@@ -502,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }else{
                             previewPos += 6
                         }
-
+ 
                         if(index.toString().substring(1,2) == 0){//The second digit of the substring shows vertical placement, part of the translation from a 10*3 grid
                             //previewPos +=
                         }else if(index.toString().substring(1,2) == 1){
@@ -522,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 displaySquares[previewPos].classList.add('block'); //Adds a block to the next position
             })
-
+ 
             for(let index = 0; index < 9; index++){ //Adds a colour value to the block
                 if(displaySquares[index].classList.contains('block')){
                     displaySquares[index].style.backgroundColor = (nextBlockColour[index]);
@@ -536,15 +566,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 for(let i=0; i<grids.length; i++) {
                   grids[i].style.backgroundColor = 'pink';
                 }
-
+ 
                 clearInterval(timerId);
                 paused = true; //Pauses the game using this variable as you cannot directly check timerID for values
                 startBtn.blur();//Deselects the button from the mouse
             }else{
                 startBtn.disabled = false;
                 let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
-                for(let i=0; i<grids.length; i++) {
-                  grids[i].style.backgroundColor = 'yellowgreen';
+                if(timerId != null){
+                    for(let i=0; i<grids.length; i++) {
+                        grids[i].style.backgroundColor = 'yellowgreen';
+                      }
                 }
                 blockDraw(); //Redraws the block
                 clearInterval(timerId); //Needs to clear the interval otherwise there will be several individual calls at 500ms
@@ -582,3 +614,4 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     
     
+
