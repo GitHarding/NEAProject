@@ -16,15 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
     //Game Blocks
     for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
         let divGen = document.createElement('div');
+
+        if(i < 170){
+            divGen.style.border = '1px solid black'
+            divGen.style.boxShadow = 'inset 0px 0px 0px 10px transparent';
+            divGen.style.boxSizing = 'border-box';
+        }else{
+            divGen.style.border = '1px solid red'
+            divGen.style.boxShadow = 'inset 0px 0px 0px 10px transparent';
+            divGen.style.boxSizing = 'border-box';
+        }
         applyHTML.appendChild(divGen);
     }
      
     //Game Preview Box
         for(let i = 0; i < 9; i++){//Creates 9 squares to fill the preview square
             let divGen = document.createElement('div');
-            /*if(i %2 == 0){ //Makes the hexagon grid (CANCELLED)
-                divGen.style.marginTop = '-10px'
-            }*/
             applyHTMLP.appendChild(divGen);
         }
      
@@ -110,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ['yellow'], ['red'], ['purple'], ['green']
         ]
      
-        let currentPosition = 183; //Position of the centre of the block on the board
+        let currentPosition = 180; //Position of the centre of the block on the board
         let currentRotation = 0; //the current rotation of the block
         let current = Blocks[0]; //Stores the current block and the current rotation
      
@@ -175,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         function instantiateBlock(){
             currentRotation = 0; //Resets the block rotation
-            currentPosition = 183; //Resets the block position
+            currentPosition = 180; //Resets the block position
             Blocks = nextBlocks; //The next block is moved to the current, and a new one is generated below
             current = Blocks[currentRotation]; //current is set to the new block, using the current rotation to default back to
  
@@ -212,12 +219,21 @@ document.addEventListener('DOMContentLoaded', () => {
         //Timer functionality
         function moveUp(){
             if(paused == true){
+                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + "<br> P A U S E D <br>begins in " + (3-pausedCountdown))
                 pausedCountdown ++;
                 if(pausedCountdown > 3){
                     paused = false; //Will play the game after 3*500ms countdown
                     pausedCountdown = 0; //Resets the pausedcoundown variable
                 }
             }else{
+                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
+                let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
+                if(timerId != 1){
+                    for(let i=0; i<grids.length; i++) {
+                        grids[i].style.backgroundColor = 'yellowgreen';
+                      }
+                }
+
                 leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
                 rightEdge = current.some(index => (currentPosition + index) % width === width-1);
                 blockCheck(false); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
@@ -376,9 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 squares[gravityAffect[i]].classList.remove('block');
                 squares[gravityAffect[i]].classList.remove('filled')
             }
-            console.log(document.getElementById("scoreP1").innerHTML)
-            console.log(score)
-            document.getElementById("scoreP1").innerHTML = ("Score: " + score)
+            document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
             blocksToClear = [];
             gravityCheck = [];
         }
@@ -572,12 +586,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 startBtn.blur();//Deselects the button from the mouse
             }else{
                 startBtn.disabled = false;
-                let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
-                if(timerId != null){
-                    for(let i=0; i<grids.length; i++) {
-                        grids[i].style.backgroundColor = 'yellowgreen';
-                      }
-                }
                 blockDraw(); //Redraws the block
                 clearInterval(timerId); //Needs to clear the interval otherwise there will be several individual calls at 500ms
                 timerId = setInterval(moveUp, 500);
@@ -592,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
             testValue = localStorage.getItem('testNo')
             testValue ++;
             localStorage.setItem('testNo', testValue);
-            document.getElementById('score').innerHTML = localStorage.getItem('testNo')
+            document.getElementById('scoreP1').innerHTML = localStorage.getItem('testNo')
      
             if (confirm('Are you sure you want to refresh')) {
                 alert("refreshed");
@@ -604,10 +612,11 @@ document.addEventListener('DOMContentLoaded', () => {
         })
      
         function gameOver() { //Game Over Functionality
-            if(current.some(index => squares[currentPosition + index].classList.contains('filled'))){
-                ScoreDisplay.innerHTML = 'end'; //Used to temporarily display to the player that the game is over
+            if((solidBlock[0]).some(index => squares[currentPosition + index].classList.contains('filled'))){
                 clearInterval(timerId); //Stops the incrementing timer that plays the game
                 paused = true; //Pauses the game
+                alert("G A M E  - -  O V E R")
+                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + " WHAT<br> Game Over"); //Used to display to the player that the game is over
             }
      
         }
