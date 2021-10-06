@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let divGen = document.createElement('div');
 
         if(i < 170){
-            divGen.style.border = '1px solid black'
+            divGen.style.border = '1px solid black';
             divGen.style.boxShadow = 'inset 0px 0px 0px 10px transparent';
             divGen.style.boxSizing = 'border-box';
         }else{
@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let timerId;
         let paused = true; //Used to check if a pause is occuring
         let pausedCountdown = 0; //Used to create a delay before the game is resumed
+        let gameOverTrue = false; //Used to end the game and stop other functions
      
     //HTML INITIALISATION_________________________________________________________________________________________________
         let score = 0;
@@ -63,43 +64,43 @@ document.addEventListener('DOMContentLoaded', () => {
             [0, 1, 2, 10, 11, 12, 20, 21, 22],
             [0, 1, 2, 10, 11, 12, 20, 21, 22],
             [0, 1, 2, 10, 11, 12, 20, 21, 22]
-        ]
+        ];
         const aBlock = [ //Half L Block
             [1+width,1+width*2,2], //Stores each rotation of the same block shape
             [width, 1+width, 2+width*2],
             [1,width+1, width*2],
             [0,1+width, 2+width]
-        ]
+        ];
         const bBlock = [ //Nugget Block
             [1, 1+width, 2+width], //Stores each rotation of the same block shape
             [1+width, 1+width*2, 2+width],
             [width, 1+width, 1+width*2],
             [width, 1, 1+width]
-        ]
+        ];
         const cBlock = [//V Block
             [0, 1+width, 2], //Stores each rotation of the same block shape
             [2, 1+width, 2+width*2],
             [width*2, 1+width, 2+width*2],
             [0, 1+width, width*2]
-        ]
+        ];
         const dBlock = [ // "/" Block
             [0, 1+width, 2+width*2], //Stores each rotation of the same block shape
             [2, 1+width, width*2],
             [2+width*2, 1+width, 0],
             [width*2, 1+width, 2]
-        ]
+        ];
         const eBlock = [
             [1, 1+width, 1+width*2], //Stores each rotation of the same block shape
             [width, 1+width, 2+width],
             [1, 1+width, 1+width*2],
             [2+width, 1+width, width]
-        ]
+        ];
         const fBlock = [
             [1, 1+width, 1+width*2, 2+width*2], //Stores each rotation of the same block shape
             [width, width*2, 1+width, 2+width],
             [0, 1, 1+width, 1+width*2],
             [2, width, 1+width, 2+width]
-        ]
+        ];
         
         let Blocks = fBlock //Blocks are stored in 1 larger array - make sure this works because it doesnt look like it does
         let nextBlocks = aBlock;
@@ -107,15 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
             ['green'],['green'],['green'],
             ['green'],['green'],['green'],
             ['green'],['green'],['green']
-        ]
+        ];
         let nextBlockColour = [ //Defaulted to red to prevent null values
             ['red'],['red'],['red'],
             ['red'],['red'],['red'],
             ['red'],['red'],['red'] 
-        ]
+        ];
         const availableColours = [
             ['yellow'], ['red'], ['purple'], ['green']
-        ]
+        ];
      
         let currentPosition = 180; //Position of the centre of the block on the board
         let currentRotation = 0; //the current rotation of the block
@@ -127,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         //Variables are declared here as initialisations as otherwise it can affect their values in functions
         let initialising = true;
         let blocksToClear = []; //Takes all the blocks to clear, saves for later use
+        let whiteClear = []; //Used to display to the player that blocks are being cleared
  
         //Show preview squares
         const displaySquares = document.querySelectorAll('.preview div');
@@ -134,12 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
     //BLOCK/GAME INITIALISATION_________________________________________________________________________________________________
         if(initialising == true){
             for(let i=0;i < blockColour.length; i++){
-                blockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
-                nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
+                blockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)];
+                nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)];
             }
             Blocks = randomBlock();
-            console.log(Blocks[0])
-            current = Blocks[0]
+            current = Blocks[0];
             nextBlocks = randomBlock();
             
  
@@ -152,61 +153,57 @@ document.addEventListener('DOMContentLoaded', () => {
             let result
             switch(Math.floor(Math.random() * 6 + 1)){
                 case 1:
-                    console.log("A")
                     result = aBlock;
                     break;
                 case 2:
-                    console.log("B")
                     result = bBlock;
                     break;
                 case 3:
-                    console.log("C")
                     result = cBlock;
                     break;
                 case 4:
-                    console.log("D")
                     result = dBlock;
                     break;
                 case 5:
-                    console.log("E")
                     result = eBlock;
                     break;
                 case 6:
-                    console.log("F")
                     result = fBlock;
                     break;
                 }
-                console.log(result)
                 return result;
         }
         
         function instantiateBlock(){
-            currentRotation = 0; //Resets the block rotation
-            currentPosition = 180; //Resets the block position
-            Blocks = nextBlocks; //The next block is moved to the current, and a new one is generated below
-            current = Blocks[currentRotation]; //current is set to the new block, using the current rotation to default back to
- 
-            for(let i=0;i < blockColour.length; i++){
-                blockColour[i] = nextBlockColour[i];
-                nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
+            if(gameOverTrue == false){
+                currentRotation = 0; //Resets the block rotation
+                currentPosition = 180; //Resets the block position
+                Blocks = nextBlocks; //The next block is moved to the current, and a new one is generated below
+                current = Blocks[currentRotation]; //current is set to the new block, using the current rotation to default back to
+    
+                for(let i=0;i < blockColour.length; i++){
+                    blockColour[i] = nextBlockColour[i];
+                    nextBlockColour[i] = availableColours[Math.floor(Math.random() * availableColours.length)]
+                }
+                nextBlocks = randomBlock();
+                displayShape(); //Displays the new shape in the preview window
             }
-            nextBlocks = randomBlock()
-            console.log("WHEN")
-            displayShape(); //Displays the new shape in the preview window 
         }
      
         function blockDraw() {
-            current.forEach(index => { //For each block it will fill the relevant square based on position
-                squares[currentPosition + index].classList.add('block');
-     
-                if(index >= 20){ //Offsets by 14 as thats the next colour down in position
-                    squares[currentPosition + index].style.backgroundColor = blockColour[index - 14];
-                }else if(index >= 10){ //Offsets by 7 as thats the next colour down in position
-                    squares[currentPosition + index].style.backgroundColor = blockColour[index - 7];
-                }else{
-                    squares[currentPosition + index].style.backgroundColor = blockColour[index];
-                }
-            })
+            if(gameOverTrue == false){
+                current.forEach(index => { //For each block it will fill the relevant square based on position
+                    squares[currentPosition + index].classList.add('block');
+        
+                    if(index >= 20){ //Offsets by 14 as thats the next colour down in position
+                        squares[currentPosition + index].style.backgroundColor = blockColour[index - 14];
+                    }else if(index >= 10){ //Offsets by 7 as thats the next colour down in position
+                        squares[currentPosition + index].style.backgroundColor = blockColour[index - 7];
+                    }else{
+                        squares[currentPosition + index].style.backgroundColor = blockColour[index];
+                    }
+                })
+            }
         }
      
         function blockErase(){ //Removes all instances of the block, similar to a canvas clearing
@@ -218,35 +215,37 @@ document.addEventListener('DOMContentLoaded', () => {
      
         //Timer functionality
         function moveUp(){
-            if(paused == true){
-                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + "<br> P A U S E D <br>begins in " + (3-pausedCountdown))
-                pausedCountdown ++;
-                if(pausedCountdown > 3){
-                    paused = false; //Will play the game after 3*500ms countdown
-                    pausedCountdown = 0; //Resets the pausedcoundown variable
-                }
-            }else{
-                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
-                let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
-                if(timerId != 1){
-                    for(let i=0; i<grids.length; i++) {
-                        grids[i].style.backgroundColor = 'yellowgreen';
-                      }
-                }
+            if(gameOverTrue == false){
+                if(paused == true){
+                    document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + "<br> P A U S E D <br>begins in " + (3-pausedCountdown))
+                    pausedCountdown ++;
+                    if(pausedCountdown > 3){
+                        paused = false; //Will play the game after 3*500ms countdown
+                        pausedCountdown = 0; //Resets the pausedcoundown variable
+                    }
+                }else{
+                    document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
+                    let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
+                    if(timerId != 1){
+                        for(let i=0; i<grids.length; i++) {
+                            grids[i].style.backgroundColor = 'yellowgreen';
+                        }
+                    }
 
-                leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
-                rightEdge = current.some(index => (currentPosition + index) % width === width-1);
-                blockCheck(false); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
-                blockErase(); //Erases the block from the "canvas"
-                currentPosition -= width; //Adds 10 to the value to raise the block downward
-                blockDraw(); //Redraws the block afterwards
+                    leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+                    rightEdge = current.some(index => (currentPosition + index) % width === width-1);
+                    blockCheck(false); //Checks the block at the end of the cycle - could be moved to before the cycle to create a sliding effect?
+                    blockErase(); //Erases the block from the "canvas"
+                    currentPosition -= width; //Adds 10 to the value to raise the block downward
+                    blockDraw(); //Redraws the block afterwards
+                }
             }
         }
         
      
      
         function flashUp(){
-            let flashable = true //Checks if a flash block can occur
+            let flashable = true; //Checks if a flash block can occur
             let flashDistance = 0; //Checks the distance of a flash drop for it to happen
             while(flashable == true){
                 if(!current.some(index => squares[currentPosition + index - width - flashDistance].classList.contains('filled'))){
@@ -264,6 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
      
         //Block collision checking functionality
         function blockCheck(unconditional){
+            for(let i = 0; i < whiteClear.length; i++){
+                whiteClear[i].style.backgroundColor = "transparent";
+            }
+            whiteClear = [];
+
+            for(let i = 0; i < whiteClear.length; i++){
+                whiteClear[i].style.backgroundColor = "white";
+            }
+
             if(current.some(index => squares[currentPosition + index - width].classList.contains('filled')) || unconditional){
                 current.forEach(index => squares[currentPosition + index].classList.add('filled')); //Make the block currently being controlled act as a filler block and stick
                 current.forEach(index => { //For each block newly placed it will reiterate <- this works fine
@@ -313,13 +321,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
- 
+
             //Clears all of the blocks
             for(let i = blocksToClear.length - 1; i> -1; i--){
                 score ++;
                 blocksToClear[i].classList.remove('filled'); //Removes all the required classes and colours
                 blocksToClear[i].classList.remove('block'); 
                 blocksToClear[i].style.removeProperty("background-color");
+                whiteClear.push(blocksToClear[i]);
             }
             //Gravity
             let gravityCheck = []; //Checks for blocks affected by gravity
@@ -331,7 +340,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     gravityCheck.push(i);
                 }
             }
-            
+            for(let i = 0; i < current.length; i++){
+                //gravityCheck.push(current[i]+currentPosition)
+                console.log(current[i]+currentPosition - 10)
+            }
+
             let arrayGIndex = 0;
             while(arrayGIndex < gravityCheck.length){
                 if(squares[(gravityCheck[arrayGIndex]) + 1]){
@@ -382,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(!gravityCheck.includes(i)){
                     if(squares[i].style.backgroundColor && squares[i].style.backgroundColor != "black" && squares[i].classList.contains('filled')){
                         gravityAffect.push(i)
+                        whiteClear.push(squares[i]);
                     }
                 }
             }
@@ -390,8 +404,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 score -= 0.5;
                 squares[gravityAffect[i]].style.backgroundColor = "transparent" //Removes gravity affected blocks and all values within them
                 squares[gravityAffect[i]].classList.remove('block');
-                squares[gravityAffect[i]].classList.remove('filled')
+                squares[gravityAffect[i]].classList.remove('filled');
+                
             }
+            for(let i = 0; i < whiteClear.length; i++){
+                whiteClear[i].style.backgroundColor = "white";
+            }
+
             document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
             blocksToClear = [];
             gravityCheck = [];
@@ -406,8 +425,8 @@ document.addEventListener('DOMContentLoaded', () => {
      
             now = Date.now();
             if(now - lastPressed < 100 && lastKeyCode == key.keyCode) return;//Stops any key pressing if it is mass used
-            lastPressed = now
-            lastKeyCode = key.keyCode
+            lastPressed = now;
+            lastKeyCode = key.keyCode;
      
             if(!paused){ //User can use the control keys on keyboards if the game is un-paused
                 if(key.keyCode === 37){ //If the left arrow is pressed
@@ -540,27 +559,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 }else{
                     if(index.toString().length == 2){ //The first digit of the substring shows horizontal placement, part of the translation from a 10*3 grid
                         if(index.toString().substring(0,1) == 0){
-                            //previewPos +=0
+                            //previewPos +=0;
                         }else if(index.toString().substring(0,1) == 1){
-                            previewPos += 3
+                            previewPos += 3;
                         }else{
-                            previewPos += 6
+                            previewPos += 6;
                         }
  
                         if(index.toString().substring(1,2) == 0){//The second digit of the substring shows vertical placement, part of the translation from a 10*3 grid
-                            //previewPos +=
+                            //previewPos += 0;
                         }else if(index.toString().substring(1,2) == 1){
-                            previewPos += 1
+                            previewPos += 1;
                         }else{
-                            previewPos += 2
+                            previewPos += 2;
                         }
                     }else{
                         if(index.toString().substring(0,1) == 0){
-                            //previewPos +=
+                            //previewPos += 0;
                         }else if(index.toString().substring(0,1) == 1){
-                            previewPos += 1
+                            previewPos += 1;
                         }else{
-                            previewPos += 2
+                            previewPos += 2;
                         }
                     }
                 }
@@ -575,6 +594,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
      
         startBtn.addEventListener('click', () =>{    
+            gamePause();
+        })
+
+        function gamePause(){
             if(paused == false){
                 let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
                 for(let i=0; i<grids.length; i++) {
@@ -592,12 +615,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 startBtn.blur();//Deselects the button from the mouse
             }
-        })
+        }
      
     //PREVIEW AND MISC FUNCTIONALITY___________________________________________________________________________________________________________________________________________________________
         let testValue = 0;//Temporary to test if I can locally save variables like score
         refreshBtn.addEventListener('click', () =>{
-            testValue = localStorage.getItem('testNo')
+            testValue = localStorage.getItem('testNo');
             testValue ++;
             localStorage.setItem('testNo', testValue);
             document.getElementById('scoreP1').innerHTML = localStorage.getItem('testNo')
@@ -612,13 +635,26 @@ document.addEventListener('DOMContentLoaded', () => {
         })
      
         function gameOver() { //Game Over Functionality
-            if((solidBlock[0]).some(index => squares[currentPosition + index].classList.contains('filled'))){
+            gameOverTrue = false;
+            for(let i = 180; i < 210; i++){
+
+                if(squares[i].classList.contains('filled')){
+                    console.log(squares[i])
+                    gameOverTrue = true;
+                    squares[i].style.backgroundColor = 'black';
+                    console.log(squares[i])
+                    
+
+                }
+            }
+            if(gameOverTrue == true){
+                startBtn.disabled = true;
+                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + " <br> Game Over"); //Used to display to the player that the game is over
                 clearInterval(timerId); //Stops the incrementing timer that plays the game
                 paused = true; //Pauses the game
-                alert("G A M E  - -  O V E R")
-                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + " WHAT<br> Game Over"); //Used to display to the player that the game is over
+                alert("G A M E  - -  O V E R");
+                document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + " <br> Game Over"); //Used to display to the player that the game is over
             }
-     
         }
     })
     
