@@ -260,9 +260,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
         }
-     
+ 
         //Block collision checking functionality
         function blockCheck(unconditional){
+            //Gravity Variables (Needed here as it is called in block placement)
+            let gravityCheck = []; //Checks for blocks affected by gravity
+            let gravityAffect = []; //Takes the blocks that are able to be affected by gravity
+
+            let clearing = false;
             for(let i = 0; i < whiteClear.length; i++){
                 whiteClear[i].style.backgroundColor = "transparent";
             }
@@ -279,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let matchingBlocks = []; //Creates an array of all the blocks that need to be destroyed, also being used to keep the flower search iterating
                     let arrayIndex = 0; //Used to iterate the while loop for the flower search
                     matchingBlocks.push(currentPosition + index) //Puts the current selected block into the flower search array to start the search
- 
+                    
                     while(arrayIndex < matchingBlocks.length){
                         //Checking for blocks to the right will be ignored if the current block is at the right edge
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + 1)) && !(((squares.indexOf(squares[matchingBlocks[arrayIndex]])) % 10) - 9==0)){
@@ -299,18 +304,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     if(arrayIndex >= 5){
                         for(let i = matchingBlocks.length - 1; i > -1; i--){//afterwards clears them
-                            blocksToClear.push(squares[matchingBlocks[i]]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks
+                            blocksToClear.push(squares[matchingBlocks[i]]); //Pushes all the blocks to an outside array, it cannot clear the blocks within the "newly placed blocks" as it potentially clears unchecked blocks                        
                         }
                     }
  
                     matchingBlocks = []; //Resets matching blocks to check for the next block
                 });
-     
-                //New block instantiating
-                instantiateBlock();
-                blockDraw(); //Draws the new instantiated block
-                gameOver(); //Checks for a game over
-                
+                clearing = true;
             }
  
             //Gets rid of duplicate Divs in an array
@@ -330,92 +330,130 @@ document.addEventListener('DOMContentLoaded', () => {
                 blocksToClear[i].style.removeProperty("background-color");
                 whiteClear.push(blocksToClear[i]);
             }
-            //Gravity
-            let gravityCheck = []; //Checks for blocks affected by gravity
-            let gravityAffect = []; //Takes the blocks that are able to be affected by gravity
-     
-            //for loop using the sides (10,20 etc and  19,29,39+ bottom 10,11,12,13,14,15,16,17,18,19,20)
-            for(let i = 10; i < 20; i++){
-                if(squares[i].classList.contains('block')){
-                    gravityCheck.push(i);
-                }
-            }
-            for(let i = 0; i < current.length; i++){
-                //gravityCheck.push(current[i]+currentPosition)
-                console.log(current[i]+currentPosition - 10)
-            }
 
-            let arrayGIndex = 0;
-            while(arrayGIndex < gravityCheck.length){
-                if(squares[(gravityCheck[arrayGIndex]) + 1]){
-                    if(squares[(gravityCheck[arrayGIndex]) + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + 1))){
-                        gravityCheck.push(gravityCheck[arrayGIndex] + 1); //If the block is to the right it adds it to the flowering array
+
+            console.log("LOOPER HERE")
+            let gravityCheckLoop = 0;
+            while(gravityCheckLoop != 1){
+
+                //Gravity
+                //for loop using the sides (10,20 etc and  19,29,39+ bottom 10,11,12,13,14,15,16,17,18,19,20)
+                for(let i = 10; i < 20; i++){
+                    if(squares[i].classList.contains('block')){
+                        gravityCheck.push(i);
                     }
                 }
-                if(squares[(gravityCheck[arrayGIndex]) - 1]){
-                    if(squares[(gravityCheck[arrayGIndex]) - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - 1))){
-                        gravityCheck.push(gravityCheck[arrayGIndex] - 1); //If the block is to the left it adds it to the flowering array
+
+                let arrayGIndex = 0;
+                while(arrayGIndex < gravityCheck.length){
+                    if(squares[(gravityCheck[arrayGIndex]) + 1]){
+                        if(squares[(gravityCheck[arrayGIndex]) + 1].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] + 1))){
+                            gravityCheck.push(gravityCheck[arrayGIndex] + 1); //If the block is to the right it adds it to the flowering array
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) - 1]){
+                        if(squares[(gravityCheck[arrayGIndex]) - 1].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] - 1))){
+                            gravityCheck.push(gravityCheck[arrayGIndex] - 1); //If the block is to the left it adds it to the flowering array
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) + width]){
+                        if(squares[(gravityCheck[arrayGIndex]) + width].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width))){
+                            gravityCheck.push(gravityCheck[arrayGIndex] + width); //If the block is above it adds it to the flowering array
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) - width]){
+                        if(squares[(gravityCheck[arrayGIndex]) - width].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width)) && (gravityCheck[arrayGIndex] - width) > 10){
+                            gravityCheck.push(gravityCheck[arrayGIndex] - width); //If the block is below it adds it to the flowering array
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) + width + 1]){
+                        if(squares[(gravityCheck[arrayGIndex]) + width + 1].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width + 1))){
+                            let notInCurrent = false;
+                            for(let i = 0; i < current.length; i++){
+                                if(squares[(gravityCheck[arrayGIndex])]){
+                                    notInCurrent =true;
+                                }
+                            }
+                            if(notInCurrent == true){
+                                gravityCheck.push(gravityCheck[arrayGIndex] + width + 1); //If the block is up and left it adds it to the flowering array
+                            }
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) + width - 1]){
+                        if(squares[(gravityCheck[arrayGIndex]) + width - 1].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width - 1))){
+                            let notInCurrent = false;
+                            for(let i = 0; i < current.length; i++){
+                                if(squares[(gravityCheck[arrayGIndex]) + width - 1]){
+                                    notInCurrent =true;
+                                }
+                            }
+                            if(notInCurrent == true){
+                                gravityCheck.push((gravityCheck[arrayGIndex]) + width - 1); //If the block is up and right it adds it to the flowering array
+                            }
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) - width + 1]){
+                        if(squares[(gravityCheck[arrayGIndex]) - width + 1].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width + 1))&& (gravityCheck[arrayGIndex] - width) >= 10){
+                            let notInCurrent = false;
+                            for(let i = 0; i < current.length; i++){
+                                if(squares[(gravityCheck[arrayGIndex]) - width + 1]){
+                                    notInCurrent = true;
+                                }
+                            }
+                            if(notInCurrent == true){
+                                gravityCheck.push((gravityCheck[arrayGIndex]) - width + 1); //If the block is up and left it adds it to the flowering array
+                            }
+                        }
+                    }
+                    if(squares[(gravityCheck[arrayGIndex]) - width - 1]){
+                        if(squares[(gravityCheck[arrayGIndex]) - width - 1].classList.contains("filled") && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width - 1)) && (gravityCheck[arrayGIndex] - width) >= 10){
+                            let notInCurrent = false;
+                            for(let i = 0; i < current.length; i++){
+                                if(squares[(gravityCheck[arrayGIndex]) - width - 1]){
+                                    notInCurrent =true;
+                                }
+                            }
+                            if(notInCurrent == true){
+                                gravityCheck.push((gravityCheck[arrayGIndex]) - width - 1); //If the block is up and left it adds it to the flowering array
+                            }
+                        }
+                    }
+                    arrayGIndex++; //Iterates the loop
+                }
+
+                for(let i = squares.length - 1; i > -1; i--){
+                    if(!gravityCheck.includes(i)){
+                        if(squares[i].style.backgroundColor && squares[i].style.backgroundColor != "black" && squares[i].classList.contains('filled')){
+                            gravityAffect.push(i)
+                            whiteClear.push(squares[i]);
+                        }
                     }
                 }
-                if(squares[(gravityCheck[arrayGIndex]) + width]){
-                    if(squares[(gravityCheck[arrayGIndex]) + width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width))){
-                        gravityCheck.push(gravityCheck[arrayGIndex] + width); //If the block is above it adds it to the flowering array
-                    }
+
+                for(let i = gravityAffect.length - 1; i > -1; i--){
+                    score -= 0.5;
+                    squares[gravityAffect[i]].style.backgroundColor = "transparent" //Removes gravity affected blocks and all values within them
+                    squares[gravityAffect[i]].classList.remove('block');
+                    squares[gravityAffect[i]].classList.remove('filled'); 
                 }
-                if(squares[(gravityCheck[arrayGIndex]) - width]){
-                    if(squares[(gravityCheck[arrayGIndex]) - width].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width)) && (gravityCheck[arrayGIndex] - width) > 10){
-                        gravityCheck.push(gravityCheck[arrayGIndex] - width); //If the block is below it adds it to the flowering array
-                    }
+                for(let i = 0; i < whiteClear.length; i++){
+                    whiteClear[i].style.backgroundColor = "white";
                 }
-                if(squares[(gravityCheck[arrayGIndex]) + width + 1]){
-                    if(squares[(gravityCheck[arrayGIndex]) + width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width + 1))){
-                        gravityCheck.push(gravityCheck[arrayGIndex] + width + 1); //If the block is above it adds it to the flowering array
-                    }
-                }
-                if(squares[(gravityCheck[arrayGIndex]) + width - 1]){
-                    if(squares[(gravityCheck[arrayGIndex]) + width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] + width - 1))){
-                        gravityCheck.push(gravityCheck[arrayGIndex] + width - 1); //If the block is below it adds it to the flowering array
-                    }
-                }
-                if(squares[(gravityCheck[arrayGIndex]) - width + 1]){
-                    if(squares[(gravityCheck[arrayGIndex]) - width + 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width + 1))&& (gravityCheck[arrayGIndex] - width) >= 10){
-                        gravityCheck.push(gravityCheck[arrayGIndex] - width + 1); //If the block is above it adds it to the flowering array
-                    }
-                }
-                if(squares[(gravityCheck[arrayGIndex]) - width - 1]){
-                    if(squares[(gravityCheck[arrayGIndex]) - width - 1].style.backgroundColor && !(gravityCheck.includes(gravityCheck[arrayGIndex] - width - 1)) && (gravityCheck[arrayGIndex] - width) >= 10){
-                        gravityCheck.push(gravityCheck[arrayGIndex] - width - 1); //If the block is below it adds it to the flowering array
-                    }
-                }
-                arrayGIndex++; //Iterates the loop
-                
-            }
-     
-            for(let i = squares.length - 1; i > -1; i--){
-                if(!gravityCheck.includes(i)){
-                    if(squares[i].style.backgroundColor && squares[i].style.backgroundColor != "black" && squares[i].classList.contains('filled')){
-                        gravityAffect.push(i)
-                        whiteClear.push(squares[i]);
-                    }
-                }
-            }
-     
-            for(let i = gravityAffect.length - 1; i > -1; i--){
-                score -= 0.5;
-                squares[gravityAffect[i]].style.backgroundColor = "transparent" //Removes gravity affected blocks and all values within them
-                squares[gravityAffect[i]].classList.remove('block');
-                squares[gravityAffect[i]].classList.remove('filled');
-                
-            }
-            for(let i = 0; i < whiteClear.length; i++){
-                whiteClear[i].style.backgroundColor = "white";
+                gravityCheckLoop ++;
             }
 
             document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
             blocksToClear = [];
             gravityCheck = [];
+
+            if(clearing == true){
+                //New block instantiating
+                instantiateBlock();
+                blockDraw(); //Draws the new instantiated block
+                gameOver(); //Checks for a game over               
+            }
         }
-     
+
         //Input dedicated functions
         document.addEventListener('keydown', control); //Adds the event listener for keyboards
         let lastPressed = 0;//Used to stop mass key presses when a key is held down
