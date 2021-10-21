@@ -41,9 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
      
         //Finds all the html components
         const startBtn = document.querySelector('#startButton');
-        const refreshBtn = document.querySelector('#refreshButton');
-        const ScoreDisplay = document.querySelector('#score');
-        const grid = document.querySelector('.gameGrid');
      
         //Creates and uses the squares
         let squares = Array.from(document.querySelectorAll('.gameGrid div'));
@@ -215,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
      
         //Timer functionality
         function moveUp(){
+            gameOver();
             if(gameOverTrue == false){
                 if(paused == true){
                     document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + "<br> P A U S E D <br>begins in " + (3-pausedCountdown))
@@ -294,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - 1].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - 1)) && !(((squares.indexOf(squares[matchingBlocks[arrayIndex]])) % 10==0))){   
                             matchingBlocks.push(matchingBlocks[arrayIndex] - 1); //If the block is to the left it adds it to the flowering array
                         }
-                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + width))){
+                        if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) + width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] + width)) && !(matchingBlocks[arrayIndex] + width > 200)){
                             matchingBlocks.push(matchingBlocks[arrayIndex] + width); //If the block is above it adds it to the flowering array
                         }
                         if(squares[matchingBlocks[arrayIndex]].style.backgroundColor === squares[(matchingBlocks[arrayIndex]) - width].style.backgroundColor && !(matchingBlocks.includes(matchingBlocks[arrayIndex] - width))){
@@ -441,14 +439,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score)
+            document.getElementById("ExportScoreP1").innerHTML = (score);
             blocksToClear = [];
             gravityCheck = [];
 
             if(clearing == true){
                 //New block instantiating
+                gameOver(); //Checks for a game over 
                 instantiateBlock();
-                blockDraw(); //Draws the new instantiated block
-                gameOver(); //Checks for a game over               
+                blockDraw(); //Draws the new instantiated block              
             }
         }
 
@@ -465,18 +464,18 @@ document.addEventListener('DOMContentLoaded', () => {
             lastKeyCode = key.keyCode;
      
             if(!paused){ //User can use the control keys on keyboards if the game is un-paused
-                if(key.keyCode === 37){ //If the left arrow is pressed
+                if(key.keyCode === 65){ //If the left arrow is pressed
                     moveLeft();
-                } else if(key.keyCode === 40){ //If the down arrow is pressed
+                } else if(key.keyCode === 83){ //If the down arrow is pressed
                     blockCheck(false); //Checks the blocks before it rotates
                     blockRotate(); //Then rotates the block
-                } else if(key.keyCode === 39){ //If the right arrow is pressed
+                } else if(key.keyCode === 68){ //If the right arrow is pressed
                     moveRight();
-                } else if(key.keyCode === 38){ //If the up arrow is pressed
+                } else if(key.keyCode === 87){ //If the up arrow is pressed
                     moveUp(); //Fast drops the block
-                } else if(key.keyCode === 32){ //If the space key is pressed
+                } else if(key.keyCode === 81){ //If the space key is pressed
                     flashUp(); //Flash drops the block
-                } else if(key.keyCode === 17){ //If the control key is pressed
+                } else if(key.keyCode === 69){ //If the control key is pressed
                     blockStick(); //Flash drops the block
                 }
             }
@@ -653,40 +652,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
      
-    //PREVIEW AND MISC FUNCTIONALITY___________________________________________________________________________________________________________________________________________________________
-        let testValue = 0;//Temporary to test if I can locally save variables like score
-        refreshBtn.addEventListener('click', () =>{
-            testValue = localStorage.getItem('testNo');
-            testValue ++;
-            localStorage.setItem('testNo', testValue);
-            document.getElementById('scoreP1').innerHTML = localStorage.getItem('testNo')
-     
-            if (confirm('Are you sure you want to refresh')) {
-                alert("refreshed");
-                //instead of refreshing every variable via tedious means Im going to locally store necessary values
-                location.reload();                
-            }else{
-     
-            }
-        })
-     
         function gameOver() { //Game Over Functionality
             gameOverTrue = false;
             for(let i = 180; i < 210; i++){
-
                 if(squares[i].classList.contains('filled')){
-                    console.log(squares[i])
                     gameOverTrue = true;
                     squares[i].style.backgroundColor = 'black';
-                    console.log(squares[i])
                 }
             }
-            if(gameOverTrue == true){
-                startBtn.disabled = true;
+            if(gameOverTrue == true || document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins")){
+                document.getElementById("ExportScoreP1").innerHTML = ("Player 2 Wins")
+                gamePause();
                 document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + " <br> Game Over"); //Used to display to the player that the game is over
                 clearInterval(timerId); //Stops the incrementing timer that plays the game
                 paused = true; //Pauses the game
-                alert("G A M E  - -  O V E R");
                 document.getElementById("scoreP1").innerHTML = ("Player 1 <br>Score: " + score + " <br> Game Over"); //Used to display to the player that the game is over
             }
         }

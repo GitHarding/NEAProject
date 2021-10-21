@@ -17,12 +17,6 @@
     width: 200px;
 }
  
-.preview div{
-    width:20px;
-    height:20px;
-    color: orange;
-}
- 
 .gameGrid{
     width:200px;
     height:420px;
@@ -66,6 +60,19 @@
     flex-wrap: wrap;
     background-color: maroon;
 }
+
+.preview div{
+    width:20px;
+    height:20px;
+    color: orange;
+}
+
+.preview2 div{
+    width:20px;
+    height:20px;
+    color: orange;
+}
+
 .gameGrid div{
     height: 20px;
     width: 20px;
