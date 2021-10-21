@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let divGen = document.createElement('div');
 
         if(i < 170){
-            divGen.style.border = '1px solid black';
+            divGen.style.border = '1px solid brown';
             divGen.style.boxShadow = 'inset 0px 0px 0px 10px transparent';
             divGen.style.boxSizing = 'border-box';
         }else{
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ['red'],['red'],['red'] 
         ];
         const availableColours = [
-            ['yellow'], ['red'], ['purple'], ['green']
+            ['yellow'], ['red'], ['deepPink'], ['Green']
         ];
      
         let currentPosition = 180; //Position of the centre of the block on the board
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
                     if(timerId != 1){
                         for(let i=0; i<grids.length; i++) {
-                            grids[i].style.backgroundColor = 'yellowgreen';
+                            grids[i].style.backgroundColor = 'maroon';
                         }
                     }
 
@@ -331,8 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 whiteClear.push(blocksToClear[i]);
             }
 
-
-            console.log("LOOPER HERE")
             let gravityCheckLoop = 0;
             while(gravityCheckLoop != 1){
 
@@ -467,18 +465,18 @@ document.addEventListener('DOMContentLoaded', () => {
             lastKeyCode = key.keyCode;
      
             if(!paused){ //User can use the control keys on keyboards if the game is un-paused
-                if(key.keyCode === 37){ //If the left arrow is pressed
+                if(key.keyCode === 65){ //If the left arrow is pressed
                     moveLeft();
-                } else if(key.keyCode === 40){ //If the down arrow is pressed
+                } else if(key.keyCode === 83){ //If the down arrow is pressed
                     blockCheck(false); //Checks the blocks before it rotates
                     blockRotate(); //Then rotates the block
-                } else if(key.keyCode === 39){ //If the right arrow is pressed
+                } else if(key.keyCode === 68){ //If the right arrow is pressed
                     moveRight();
-                } else if(key.keyCode === 38){ //If the up arrow is pressed
+                } else if(key.keyCode === 87){ //If the up arrow is pressed
                     moveUp(); //Fast drops the block
-                } else if(key.keyCode === 32){ //If the space key is pressed
+                } else if(key.keyCode === 81){ //If the space key is pressed
                     flashUp(); //Flash drops the block
-                } else if(key.keyCode === 17){ //If the control key is pressed
+                } else if(key.keyCode === 69){ //If the control key is pressed
                     blockStick(); //Flash drops the block
                 }
             }
@@ -639,7 +637,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(paused == false){
                 let grids = document.getElementsByClassName('gameGrid'); //Changes the background of all gamegrid elements to show its paused
                 for(let i=0; i<grids.length; i++) {
-                  grids[i].style.backgroundColor = 'pink';
+                  grids[i].style.backgroundColor = 'Sienna';
                 }
  
                 clearInterval(timerId);
@@ -681,8 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameOverTrue = true;
                     squares[i].style.backgroundColor = 'black';
                     console.log(squares[i])
-                    
-
                 }
             }
             if(gameOverTrue == true){
