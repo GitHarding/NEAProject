@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let paused = true; //Used to check if a pause is occuring
         let pausedCountdown = 0; //Used to create a delay before the game is resumed
         let gameOverTrue = false; //Used to end the game and stop other functions
+
+        //Computer based variables
+        let currentBlockDestination = -100;
      
     //HTML INITIALISATION_________________________________________________________________________________________________
         let score = 0;
@@ -232,6 +235,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         for(let i=0; i<grids.length; i++) {
                             grids[i].style.backgroundColor = 'maroon';
                         }
+                    }
+
+                    //Computer decisions and inputs
+                    console.log(currentBlockDestination)
+                    console.log(currentPosition % 10 + " - " + currentBlockDestination % 10)
+                    if(currentPosition % 10 > currentBlockDestination % 10){//block needs to move left
+                        document.dispatchEvent(new KeyboardEvent('keydown', {keycode:100}))
+                        console.log("left")
+                    }else if(currentPosition % 10 < currentBlockDestination % 10){//block needs to move left
+                        document.dispatchEvent(new KeyboardEvent('keydown', {keycode:102}))
+                        console.log("right")
                     }
 
                     leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
@@ -480,6 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     moveUp(); //Fast drops the block
                 } else if(key.keyCode === 103){ //If the space key is pressed
                     flashUp(); //Flash drops the block
+                }else if(key.keyCode === 105){ //If the control key is pressed
+                    blockStick(); //Flash drops the block
                 }
             }
         }
@@ -571,7 +587,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
                 blockDraw();      
         }
+
+        function blockStick() {//Maybe cut these out and make more efficient because its repeated in blockrotate
+            leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
+            rightEdge = current.some(index => (currentPosition + index) % width === width-1);
      
+            if(current.some(index => squares[currentPosition + index + 1].classList.contains('filled') && !rightEdge)
+            || current.some(index => squares[currentPosition + index - 1].classList.contains('filled')) && !leftEdge){//if any squares dont overlap with "filled" a block up
+                blockCheck(true); //Uses an unconditional statement to overlook the checks needed for a block to be filled
+            }
+            
+        }
+
     //GAME OFF WINDOW FUNCTIONS_________________________________________________________________________________________________
      
      
@@ -664,22 +691,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         function decisionMaking(){
-            //STOP AFTER FINDING FIRST COMBINATION
+            
             //Check Current
+            currentBlockDestination = -100;
             for(let i = 0; i < current.length; i++){
                 for(let j = 0; j < squares.length; j++){
                     
                     //Compares each placed block with the current block
-                    if(squares[j].style.backgroundColor === squares[current[i] + currentPosition].style.backgroundColor){
-
-                        //Checks if the position is possible
-                        //+1
-                        //-1
-                        //+10
-                        //-10
+                    if(squares[j].style.backgroundColor === squares[current[i] + currentPosition].style.backgroundColor && squares[j].classList.contains("filled")){
+                        //Needs to check if the blocks are valid outside of the positionality_________________________________________________________________________________________
+                        if(!squares[j+1].classList.contains("filled")){
+                            currentBlockDestination = j + 1;
+                        }else if(!squares[j-1].classList.contains("filled")){
+                            currentBlockDestination = j - 1;
+                        }else if(!squares[j+10].classList.contains("filled")){
+                            currentBlockDestination = j + 10;
+                        }else if(!squares[j-10].classList.contains("filled")){
+                            currentBlockDestination = j - 10;
+                        }
+                    }
+                    if(currentBlockDestination != -100){
+                        break;
                     }
                 }
+                if(currentBlockDestination != -100){
+                    break;
+                }
             }
+            //Actions if there is no block matching available to move to
+            if(currentBlockDestination == -100){//Do something if there is not a block available
+
+            }
+            //INPUTS ARE INPUTTED IN MOVEUP();
+
         }
 
     })

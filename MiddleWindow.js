@@ -88,15 +88,5 @@ function broadcastAll(){
         }
     }
     
-    //Acts to stop both multiplayer games if one has reached the end of the game
-    //Needs to use the pause button
-    //Needs to tally up results
-    //Needs to declare a winner
     //Needs to send results to the leaderboard
-
-
-
-    //Acts to sabotage a game window adding a layer of blocks when the other player clears x blocks in a row
-    //Needs to check which player is sabotaging
-
 }
