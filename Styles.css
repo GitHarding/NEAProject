@@ -99,5 +99,13 @@
     width: 312px;
     padding: 20px;
 }
+.communicatorContainer{
+    visibility: hidden;
+    outline-style: solid;
+    outline-color: black;
+    float: left;
+    display: flex;
+    padding: 20px;
+}
  
 

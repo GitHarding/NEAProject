@@ -45,43 +45,52 @@ let storedValue = 0;//Temporary to test if I can locally save variables like sco
     }
     
 function broadcastAll(){
-    if(document.getElementById("ExportScoreP1").innerHTML == ("Player 2 Wins")){//Game Over function
-        gamePause();
-        alert("GAME OVER AND PLAYER 2 WINS")
-        startBtn.disabled = true;
-    }else if(document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins")){
-        gamePause();
-        alert("GAME OVER AND PLAYER 1 WINS")
-        startBtn.disabled = true;
-    }
-
-
-    if(paused == true){
-        pausedCountdown ++;
-        if(pausedCountdown > 3){
-            paused = false; //Will play the game after 3*500ms countdown
-            pausedCountdown = 0; //Resets the pausedcoundown variable
+    if(document.getElementById("ExportScoreP2").innerHTML == ("1Player")){//Shows its a 1 player game
+        if(document.getElementById("ExportScoreP1").innerHTML == ("Player 2 Wins")){//Game Over function
+            gamePause();
+            alert("GAME OVER!")
+            startBtn.disabled = true;
         }
+        document.getElementById("ExportScoreP1").innerHTML = ("END")
     }else{
-        if(punishTick < 30){
-            punishTick ++;
+        if(document.getElementById("ExportScoreP1").innerHTML == ("Player 2 Wins")){//Game Over function
+            gamePause();
+            alert("GAME OVER AND PLAYER 2 WINS")
+            startBtn.disabled = true;
+        }else if(document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins")){
+            gamePause();
+            alert("GAME OVER AND PLAYER 1 WINS")
+            startBtn.disabled = true;
+        }
+
+
+        if(paused == true){
+            pausedCountdown ++;
+            if(pausedCountdown > 3){
+                paused = false; //Will play the game after 3*500ms countdown
+                pausedCountdown = 0; //Resets the pausedcoundown variable
+            }
         }else{
-            punishTick = 0;
-            if(document.getElementById("ExportScoreP1").innerHTML > document.getElementById("ExportScoreP2").innerHTML){
-                punishP2 += 10;
-                let Punish = Array.from(document.querySelectorAll('.gameGrid2 div'));
-                for(let i = punishP2;  i <  punishP2 + 10; i++){
-                    Punish[i].style.backgroundColor = 'grey';
-                    Punish[i].classList.add('block');
-                    Punish[i].classList.add('filled');
-                }
-            }else if(document.getElementById("ExportScoreP1").innerHTML < document.getElementById("ExportScoreP2").innerHTML){
-                punishP1 += 10;
-                let Punish = Array.from(document.querySelectorAll('.gameGrid div'));
-                for(let i = punishP1;  i <  punishP1 + 10; i++){
-                    Punish[i].style.backgroundColor = 'grey';
-                    Punish[i].classList.add('block');
-                    Punish[i].classList.add('filled');
+            if(punishTick < 30){
+                punishTick ++;
+            }else{
+                punishTick = 0;
+                if(document.getElementById("ExportScoreP1").innerHTML > document.getElementById("ExportScoreP2").innerHTML){
+                    punishP2 += 10;
+                    let Punish = Array.from(document.querySelectorAll('.gameGrid2 div'));
+                    for(let i = punishP2;  i <  punishP2 + 10; i++){
+                        Punish[i].style.backgroundColor = 'grey';
+                        Punish[i].classList.add('block');
+                        Punish[i].classList.add('filled');
+                    }
+                }else if(document.getElementById("ExportScoreP1").innerHTML < document.getElementById("ExportScoreP2").innerHTML){
+                    punishP1 += 10;
+                    let Punish = Array.from(document.querySelectorAll('.gameGrid div'));
+                    for(let i = punishP1;  i <  punishP1 + 10; i++){
+                        Punish[i].style.backgroundColor = 'grey';
+                        Punish[i].classList.add('block');
+                        Punish[i].classList.add('filled');
+                    }
                 }
             }
         }
