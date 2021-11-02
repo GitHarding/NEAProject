@@ -49,8 +49,7 @@ function broadcastAll(){
         gamePause();
         alert("GAME OVER AND PLAYER 2 WINS")
         startBtn.disabled = true;
-    }
-    if(document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins")){
+    }else if(document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins")){
         gamePause();
         alert("GAME OVER AND PLAYER 1 WINS")
         startBtn.disabled = true;

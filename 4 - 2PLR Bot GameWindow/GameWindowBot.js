@@ -238,14 +238,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     //Computer decisions and inputs
-                    console.log(currentBlockDestination)
-                    console.log(currentPosition % 10 + " - " + currentBlockDestination % 10)
                     if(currentPosition % 10 > currentBlockDestination % 10){//block needs to move left
-                        document.dispatchEvent(new KeyboardEvent('keydown', {keycode:100}))
-                        console.log("left")
+                        moveLeft();
                     }else if(currentPosition % 10 < currentBlockDestination % 10){//block needs to move left
-                        document.dispatchEvent(new KeyboardEvent('keydown', {keycode:102}))
-                        console.log("right")
+                        moveRight();
+                    }else if(currentPosition == currentBlockDestination){
+                        blockStick();
                     }
 
                     leftEdge = current.some(index => (currentPosition + index) % width === 0); //If the block is at the left edge it is set to true
@@ -256,25 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     blockDraw(); //Redraws the block afterwards
                 }
             }
-        }
-        
-     
-     
-        function flashUp(){
-            let flashable = true; //Checks if a flash block can occur
-            let flashDistance = 0; //Checks the distance of a flash drop for it to happen
-            while(flashable == true){
-                if(!current.some(index => squares[currentPosition + index - width - flashDistance].classList.contains('filled'))){
-                    flashDistance += width; //Moves the block up a row to check if it can still keep moving upwards
-                }else{
-                    blockErase(); //Erases the block from the "canvas"
-                    currentPosition -= flashDistance; //Adds 10 to the value to raise the block downward
-                    blockDraw(); //Redraws the block afterwards
-                    blockCheck();
-                    flashable = false;
-                }
-            }
-            
         }
  
         //Block collision checking functionality
@@ -481,23 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if(now - lastPressed < 100 && lastKeyCode == key.keyCode) return;//Stops any key pressing if it is mass used
             lastPressed = now;
             lastKeyCode = key.keyCode;
-     
-            if(!paused){ //User can use the control keys on keyboards if the game is un-paused
-                if(key.keyCode === 100){ //If the left arrow is pressed
-                    moveLeft();
-                } else if(key.keyCode === 101){ //If the down arrow is pressed
-                    blockCheck(false); //Checks the blocks before it rotates
-                    blockRotate(); //Then rotates the block
-                } else if(key.keyCode === 102){ //If the right arrow is pressed
-                    moveRight();
-                } else if(key.keyCode === 104){ //If the up arrow is pressed
-                    moveUp(); //Fast drops the block
-                } else if(key.keyCode === 103){ //If the space key is pressed
-                    flashUp(); //Flash drops the block
-                }else if(key.keyCode === 105){ //If the control key is pressed
-                    blockStick(); //Flash drops the block
-                }
-            }
         }
      
      
@@ -694,38 +656,83 @@ document.addEventListener('DOMContentLoaded', () => {
             
             //Check Current
             currentBlockDestination = -100;
-            for(let i = 0; i < current.length; i++){
-                for(let j = 0; j < squares.length; j++){
-                    
-                    //Compares each placed block with the current block
-                    if(squares[j].style.backgroundColor === squares[current[i] + currentPosition].style.backgroundColor && squares[j].classList.contains("filled")){
-                        //Needs to check if the blocks are valid outside of the positionality_________________________________________________________________________________________
-                        if(!squares[j+1].classList.contains("filled")){
-                            currentBlockDestination = j + 1;
-                        }else if(!squares[j-1].classList.contains("filled")){
-                            currentBlockDestination = j - 1;
-                        }else if(!squares[j+10].classList.contains("filled")){
-                            currentBlockDestination = j + 10;
-                        }else if(!squares[j-10].classList.contains("filled")){
-                            currentBlockDestination = j - 10;
+            let nonPriorityBlockDestination = -100; //Default value as 0 is a value on the grid
+            let rotations = 0; //Iterates through each rotation until a priority position is found (or not)
+            while(currentBlockDestination == -100){
+                console.log(rotations)
+                for(let i = 0; i < current.length; i++){ //Checks all blocks in the current
+                    for(let j = 0; j < squares.length - 40; j++){ //Cuts off at last block as otherwise it will auto match
+                        
+                        //Compares each placed block with the current block
+                        if(squares[j].style.backgroundColor === squares[current[i] + currentPosition].style.backgroundColor && squares[j].classList.contains("filled")){
+                            //Needs to check if the blocks are valid outside of the positionality_________________________________________________________________________________________
+                            currentBlockDestination = j + (current[i]%10 - 2); //Position + offset + current block chosen position
+
+                            if(!squares[j+1].classList.contains("filled") && currentBlockDestination == -100){
+                                currentBlockDestination += 1;
+                                for(let k = 0; k < current.length; k++){ //Checks if the block can fit
+                                    if(squares[currentBlockDestination + current[k]].classList.contains("filled")){
+                                        currentBlockDestination = -100;
+                                    }
+                                }
+
+                            }
+                            if(!squares[j-1].classList.contains("filled") && currentBlockDestination == -100){
+                                currentBlockDestination -= 1;
+                                for(let k = 0; k < current.length; k++){ //Checks if the block can fit
+                                    if(squares[currentBlockDestination + current[k]].classList.contains("filled")){
+                                        currentBlockDestination = -100;
+                                    }
+                                }
+
+                            }
+                            if(!squares[j+10].classList.contains("filled") && currentBlockDestination == -100){
+                                currentBlockDestination += 10;
+                                for(let k = 0; k < current.length; k++){ //Checks if the block can fit
+                                    if(squares[currentBlockDestination + current[k]].classList.contains("filled")){
+                                        currentBlockDestination = -100;
+                                    }
+                                }
+                            }
+                            if(!squares[j-10].classList.contains("filled") && currentBlockDestination == -100){
+                                currentBlockDestination -= 10;
+                                for(let k = 0; k < current.length-1; k++){ //Checks if the block can fit
+                                    if(squares[currentBlockDestination + current[k]].classList.contains("filled")){
+                                        currentBlockDestination = -100;
+                                    }
+                                }
+
+                            }
+
+                            let priority = true; //Checks if the block placement is a priority one (being that some of them are blocked by large sets of blocks)
+                            for(let k = currentBlockDestination; k < (squares.length - 40); k += 10){ 
+                                if(squares[k].classList.contains("filled")){
+                                    priority = false;
+                                }
+                            }
+                            if(priority != true){
+                                nonPriorityBlockDestination = currentBlockDestination;
+                                currentBlockDestination = -100; //sets it to show theres a non priority option
+                            }
+                        }
+
+
+                        if(currentBlockDestination != -100){ //If there is a priority value it breaks the loop
+                            break;
                         }
                     }
-                    if(currentBlockDestination != -100){
+                    if(currentBlockDestination != -100){ //If there is a priority value it breaks the loop
                         break;
                     }
                 }
-                if(currentBlockDestination != -100){
-                    break;
+                if(rotations < 4){ //Iterates the rotation to find any potential priority values
+                    blockRotate();
+                    rotations ++;
+                }else{
+                    currentBlockDestination = nonPriorityBlockDestination;
                 }
             }
-            //Actions if there is no block matching available to move to
-            if(currentBlockDestination == -100){//Do something if there is not a block available
-
-            }
-            //INPUTS ARE INPUTTED IN MOVEUP();
-
         }
-
     })
     
     
