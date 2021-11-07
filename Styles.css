@@ -4,84 +4,46 @@
     float: left;
     display: flex;
     padding: 20px;
+    width: 45%;
+    height: 500px;
 }
  
-#scoreP1{
-    margin-top: 20px;
-    margin-right: 20px;
-    width: 200px;
-}
-#scoreP2{
-    margin-top: 20px;
-    margin-right: 20px;
-    width: 200px;
+#scoreP1, #scoreP2{
+    margin-top: 2%;
+    margin-right: 2%;
+    width: 15%;
 }
  
-.gameGrid{
-    width:200px;
-    height:420px;
+.gameGrid, .gameGrid2{
+    width:70%;
+    min-width: 40px;
+    height:100%;
+
     background-color: maroon;
     border: 1px solid;
- 
     display: flex;
     flex-wrap: wrap;
-    
-    /*grid-template-rows: 20px 10px;*/
- 
-}
-.gameGrid2{
-    width:200px;
-    height:420px;
-    background-color: maroon;
-    border: 1px solid;
- 
-    display: flex;
-    flex-wrap: wrap;
-    
-    /*grid-template-rows: 20px 10px;*/
- 
 }
  
-.preview{
-    margin-left: 50px;
-    width:60px;
-    height:60px;
-    border-radius:8px;
-    display: flex;
-    flex-wrap: wrap;
-    background-color: maroon;
-}
-.preview2{
-    margin-left: 50px;
-    width:60px;
-    height:60px;
+.preview, .preview2 {
+    margin-left: 10%;
+    width:20%;
+    height:12%;
     border-radius:8px;
     display: flex;
     flex-wrap: wrap;
     background-color: maroon;
 }
 
-.preview div{
-    width:20px;
-    height:20px;
+.preview div, .preview2 div{
+    width: 33.3%;
+    height: 20px;
     color: orange;
 }
 
-.preview2 div{
-    width:20px;
-    height:20px;
-    color: orange;
-}
-
-.gameGrid div{
-    height: 20px;
-    width: 20px;
-    border-radius:7px;
-    display: inline-block;
-}
-.gameGrid2 div{
-    height: 20px;
-    width: 20px;
+.gameGrid div, .gameGrid2 div{
+    height: 4.7%;
+    width: 10%;
     border-radius:7px;
     display: inline-block;
 }

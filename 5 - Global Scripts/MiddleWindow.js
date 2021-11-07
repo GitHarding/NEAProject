@@ -2,6 +2,7 @@ let paused = true;
 let timerId;
 const refreshBtn = document.querySelector('#refreshButton');
 const startBtn = document.querySelector('#startButton');
+let gameOver = false;
 
 let pausedCountdown = 0;
 
@@ -10,22 +11,11 @@ let punishP1 = 0;
 let punishP2 = 0;
 
 //Use for updating the leaderboards - or upload to JSON file instead, accessed from anywhere
-let storedValue = 0;//Temporary to test if I can locally save variables like scores
-    refreshBtn.addEventListener('click', () =>{
-        
-        storedValue = localStorage.getItem('testNo');
-        storedValue ++;
-        localStorage.setItem('testNo', testValue);
-        document.getElementById('scoreP1').innerHTML = localStorage.getItem('testNo')
-
-        if (confirm('Are you sure you want to refresh')) {
-            alert("refreshed");
-            //instead of refreshing every variable via tedious means Im going to locally store necessary values
-            location.reload();                
-        }else{
-
-        }
-    })
+refreshBtn.addEventListener('click', () =>{
+    if(confirm('Are you sure you want to refresh')) {  
+        location.reload();                
+    } 
+});
     
     startBtn.addEventListener('click', () =>{    
         gamePause();
@@ -50,6 +40,33 @@ function broadcastAll(){
             gamePause();
             alert("GAME OVER!")
             startBtn.disabled = true;
+            gameOver = true;
+
+
+            
+            //let data = {name: "deez", score: 69};
+            
+            fetch('Scores.php', {
+                method: 'POST', // or 'PUT'
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                console.log('Success:', data);
+                })
+                .catch((error) => {
+                console.error('Error:', error);
+            });
+
+            var formData = new FormData();
+            formData.append("name", "bunga"); //Change these values soon __________________________________
+            formData.append("name", 123456);
+
+            var request = new XMLHttpRequest();
+            request.open("POST", "../Scores.php");
+            request.send(formData);
+            
+            
         }
         document.getElementById("ExportScoreP1").innerHTML = ("END")
     }else{
@@ -57,10 +74,12 @@ function broadcastAll(){
             gamePause();
             alert("GAME OVER AND PLAYER 2 WINS")
             startBtn.disabled = true;
+            gameOver = true;
         }else if(document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins")){
             gamePause();
             alert("GAME OVER AND PLAYER 1 WINS")
             startBtn.disabled = true;
+            gameOver = true;
         }
 
 

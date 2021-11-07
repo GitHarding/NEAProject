@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     "use strict";
-     
+
     //Initialises The DIV grid in the CSS
     let applyHTML = document.createDocumentFragment();
     let applyHTMLP = document.createDocumentFragment();
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         divGen.className = 'filled';
         applyHTML.appendChild(divGen);
     }
-     
+    
     //Game Blocks
     for(let i = 0; i < 200; i++){//Creates 200 squares to fill the game grid
         let divGen = document.createElement('div');
@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         applyHTML.appendChild(divGen);
     }
+
      
     //Game Preview Box
         for(let i = 0; i < 9; i++){//Creates 9 squares to fill the preview square
