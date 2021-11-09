@@ -10,6 +10,8 @@ let punishTick = 0;
 let punishP1 = 0;
 let punishP2 = 0;
 
+let JSONString
+
 //Use for updating the leaderboards - or upload to JSON file instead, accessed from anywhere
 refreshBtn.addEventListener('click', () =>{
     if(confirm('Are you sure you want to refresh')) {  
@@ -67,13 +69,28 @@ function broadcastAll(){
             request.open("POST", "../Scores.php");
             request.send(formData); //<- where it all goes wrong
             */
-            //COLLECT DATA AND SEND TO NODE_______________________________________________________________________________________
+
+            //COLLECT DATA AND SEND TO NODE_________________________________________________________THE BIT BELOW ACTUALLY WORKS HOW ON EARTH DO I SEND DATA TO JSON I DONT KNOW
+            //Retrieve the JSON and add values to it
+            
+            fetch("../Scores.json") //I am able to fetch data
+                .then(response => response.json())
+                .then(data =>{
+                    (JSONString = JSON.parse(JSON.stringify(data)));
+                }).then(() => {
+                    JSONString.push({name: 'bunga', score: 954074305749854795846547936594667986})
+                    JSONString = "name: 'bunga', score: 954074305749854795846547936594667986"
+                    sendJSONData();
+                });
+                
+               
+            
+            /*
             var request = new XMLHttpRequest();
             request.open("POST", "/post");
             request.setRequestHeader("Content-Type", "application/json")
             request.send(JSON.stringify({name: "bunga", score: 954074305749854795846547936594667986})); //<- where it all goes wrong
-
-
+            */
         }
         document.getElementById("ExportScoreP1").innerHTML = ("END")
     }else{
@@ -121,6 +138,19 @@ function broadcastAll(){
             }
         }
     }
-    
-    //Needs to send results to the leaderboard
+
+    async function sendJSONData() {//Rejig this to send data to the json
+        console.log(typeof(JSONString))
+        const response = await fetch("http://localhost:3000/send", {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(JSONString)
+          });
+        //const data = await response.json();
+        console.log("i have finished 0_0")
+        //document.getElementById("result").innerHTML = data.value;
+    } 
 }

@@ -1,5 +1,5 @@
 let JSONString
-fetch("Scores.json")
+fetch("../Scores.json")
 	.then(response => response.json())
 	.then(data =>{
 		(JSONString = JSON.parse(JSON.stringify(data)));
