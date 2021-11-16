@@ -1,5 +1,5 @@
-const cors = require('cors');
 
+const cors = require('cors');
 const express = require("express");
 
 const app = express();
@@ -8,41 +8,24 @@ app.use(express.json());
 app.use(cors({origin: 'http://localhost:3000'}));
 app.use("/static", express.static(__dirname + "/static/"));
 
-app.use(express.json());
+const formidable = require("express-formidable")
+app.use(formidable());
 
-app.use(express.bodyParser());
+app.post("/send", (req, res) => { //Sends scores to Scores.json
+    console.log(req.fields)
+    res.send(req.fields.scores)
 
-app.get("/old", (req, res) => {
-    res.json({"value": "Cooookies!!"});
+    //method 3
+    var fs = require('fs')
+    const jsonString = req.fields.scores
+    fs.writeFile('Downloads/NEAProject/Server/static/Scores.json', jsonString, err => { //This needs constant changing and im not sure what to do
+        if (err) {
+            console.log('Error writing file', err)
+        } else {
+            console.log('Successfully wrote file')
+        }
+    })
 });
-
-
-
-app.post("/send", (req, res) => {
-    console.log("testing")
-    console.log(req.body)
-    console.log("testing")
-    var fs = require('fs');
-    fs.readFile('Server/static/Scores.json', (err) => {
-        if(err){
-            console.log(err)
-        }else{
-            const data = JSON.parse(req.body)
-                console.log(data.address)
-                res.send
-
-            }
-        
-    });
-
-});
-
-app.post("/post", (req, res) =>{
-    console.log(req.body);
-    res.statusCode = 200;
-    res.end(true);
-});
-
 
 const port = 3000;
 app.listen(port, () => {

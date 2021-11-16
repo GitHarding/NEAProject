@@ -10,6 +10,11 @@ let punishTick = 0;
 let punishP1 = 0;
 let punishP2 = 0;
 
+let player1Score;
+let player1Name;
+let player2Score;
+let player2Name;
+
 let JSONString
 
 //Use for updating the leaderboards - or upload to JSON file instead, accessed from anywhere
@@ -37,60 +42,34 @@ refreshBtn.addEventListener('click', () =>{
     }
     
 function broadcastAll(){
+    if(!isNaN(document.getElementById("ExportScoreP1").innerHTML)){
+        player1Score = parseInt(document.getElementById("ExportScoreP1").innerHTML)
+    }
+    if(!isNaN(document.getElementById("ExportScoreP1").innerHTML)){
+        player2Score = parseInt(document.getElementById("ExportScoreP2").innerHTML)
+    }
+
     if(document.getElementById("ExportScoreP2").innerHTML == ("1Player")){//Shows its a 1 player game
-        if(document.getElementById("ExportScoreP1").innerHTML == ("Player 2 Wins")){//Game Over function
+        if(document.getElementById("ExportScoreP1").innerHTML == ("Player 2 Wins")){//Game Over function - made exclusive to the 1PLR mode (Needing a different ending)
             gamePause();
             alert("GAME OVER!")
             startBtn.disabled = true;
             gameOver = true;
 
+            player1Name = prompt("Please enter your name");
+            //player1Score is calculated earlier as the same value is used to end the game
 
-            
-            //let data = {name: "deez", score: 69};
-            /*
-            fetch('Scores.php', {
-                method: 'POST', // or 'PUT'
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(data => {
-                console.log('Success:', data);
-                })
-                .catch((error) => {
-                console.error('Error:', error);
-            });*/
-
-            /*
-            var formData = new FormData();
-            formData.append("name", "bunga"); //Change these values soon __________________________________
-            formData.append("name", 123456);   
-
-            var request = new XMLHttpRequest();
-            request.open("POST", "../Scores.php");
-            request.send(formData); //<- where it all goes wrong
-            */
-
-            //COLLECT DATA AND SEND TO NODE_________________________________________________________THE BIT BELOW ACTUALLY WORKS HOW ON EARTH DO I SEND DATA TO JSON I DONT KNOW
-            //Retrieve the JSON and add values to it
-            
-            fetch("../Scores.json") //I am able to fetch data
+            //Retrieves the JSON and adds another value to the end
+            fetch("../Scores.json") //Fetches the data
                 .then(response => response.json())
                 .then(data =>{
                     (JSONString = JSON.parse(JSON.stringify(data)));
-                }).then(() => {
-                    JSONString.push({name: 'bunga', score: 954074305749854795846547936594667986})
-                    JSONString = "name: 'bunga', score: 954074305749854795846547936594667986"
-                    sendJSONData();
+                }).then(() => { //Then adds to the data string
+                    JSONString.push({name: player1Name, score: player1Score}) //Uses the data just found for player 1
+                    JSONString = JSON.stringify(JSONString)
+                    sendJSONData(); //Sends the values to be sent and overwrite the file
                 });
                 
-               
-            
-            /*
-            var request = new XMLHttpRequest();
-            request.open("POST", "/post");
-            request.setRequestHeader("Content-Type", "application/json")
-            request.send(JSON.stringify({name: "bunga", score: 954074305749854795846547936594667986})); //<- where it all goes wrong
-            */
         }
         document.getElementById("ExportScoreP1").innerHTML = ("END")
     }else{
@@ -106,6 +85,24 @@ function broadcastAll(){
             gameOver = true;
         }
 
+        if(document.getElementById("ExportScoreP2").innerHTML == ("Player 1 Wins") || document.getElementById("ExportScoreP1").innerHTML == ("Player 2 Wins")){
+            player1Name = prompt("Please enter your name");
+            //player1Score is calculated earlier as the same value is used to end the game
+            player1Name = prompt("Please enter your name");
+            //player2Score is calculated earlier as the same value is used to end the game
+
+            //Retrieves the JSON and adds another value to the end
+            fetch("../Scores.json") //Fetches the data
+                .then(response => response.json())
+                .then(data =>{
+                    (JSONString = JSON.parse(JSON.stringify(data)));
+                }).then(() => { //Then adds to the data string
+                    JSONString.push({name: player1Name, score: player1Score}) //Uses the data just found for player 1
+                    SONString.push({name: player2Name, score: player2Score}) //Uses the data just found for player 1
+                    JSONString = JSON.stringify(JSONString)
+                    sendJSONData(); //Sends the values to be sent and overwrite the file
+                });
+        }
 
         if(paused == true){
             pausedCountdown ++;
@@ -114,6 +111,7 @@ function broadcastAll(){
                 pausedCountdown = 0; //Resets the pausedcoundown variable
             }
         }else{
+
             if(punishTick < 30){
                 punishTick ++;
             }else{
@@ -139,18 +137,15 @@ function broadcastAll(){
         }
     }
 
-    async function sendJSONData() {//Rejig this to send data to the json
-        console.log(typeof(JSONString))
-        const response = await fetch("http://localhost:3000/send", {
-            method: 'POST',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(JSONString)
-          });
-        //const data = await response.json();
-        console.log("i have finished 0_0")
-        //document.getElementById("result").innerHTML = data.value;
-    } 
+    async function sendJSONData(){
+        //Makes formdata here
+        const data = new FormData();
+        data.append("scores", JSONString); //(The object, The Details)
+
+        //Sends a data POST request
+        const response = await fetch("/send",{method: "POST", body: data});
+        const message = await response.text();
+        console.log(message) //Sends a message back (Used entirely for debugging purposes)
+
+    }
 }
